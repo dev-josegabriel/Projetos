@@ -2,7 +2,7 @@
 
 Sistema de triagem para a recepção de uma clínica: **emergências** são chamadas antes dos **prioritários** (idosos, gestantes, PCD), e estes antes dos **normais**. Quem tem a mesma prioridade é chamado por ordem de chegada.
 
-API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As pessoas ficam guardadas numa **fila prioritária feita com lista encadeada** (sem `PriorityQueue` nem `LinkedList` do Java), e a tela desenha a estrutura funcionando.
+API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As pessoas ficam guardadas em um **heap mínimo** (a estrutura clássica de fila com prioridade), implementado à mão, sem `PriorityQueue` do Java. A tela desenha o heap como árvore e como vetor.
 
 ## Problema que resolve
 
@@ -51,7 +51,7 @@ Não há. A fila é a "base de dados" (se o servidor reiniciar, volta ao estado 
 
 ### 6) Relacionamentos
 
-Nenhum. Cada nó da fila aponta para o próximo.
+Nenhum. Nenhum. Cada pessoa é um item do vetor do heap.
 
 ### 7) Regras de negócio
 
@@ -63,11 +63,14 @@ Nenhum. Cada nó da fila aponta para o próximo.
 
 ## Estrutura de dados
 
-`FilaPrioritaria` é uma lista encadeada **sempre ordenada** (guarda `inicio`, `fim` e `tamanho`):
+`FilaPrioritaria` é um **heap mínimo**: uma árvore binária guardada em um vetor. Cada pessoa é mais urgente que as duas filhas dela, então a **raiz (posição 0) é sempre o próximo a ser chamado**.
 
-- **Chamar o próximo:** tira o nó do início. É rápido.
-- **Entrar na fila:** vai para o fim se ninguém tem nível maior; vai para o início se for mais urgente que todos; senão anda até o ponto certo no meio.
-- **Cancelar:** religa o nó anterior ao seguinte.
+- **Quem é mais urgente:** menor nível de prioridade (1 = emergência). Se o nível for igual, quem chegou antes (menor id).
+- **Posições no vetor:** o pai de `i` fica em `(i - 1) / 2`; os filhos ficam em `2i + 1` e `2i + 2`.
+- **Entrar na fila:** a pessoa vai para o fim do vetor e *sobe* enquanto for mais urgente que o pai. São poucos passos (O(log n)).
+- **Chamar o próximo:** tira a raiz, coloca a última pessoa no lugar e *desce* trocando com o filho mais urgente (O(log n)). Ver quem é o próximo é instantâneo.
+- **Cancelar:** a última pessoa ocupa o lugar de quem saiu e é reorganizada (sobe ou desce).
+- O vetor dobra de tamanho quando enche.
 
 ## API
 

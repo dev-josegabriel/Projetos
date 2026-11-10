@@ -77,6 +77,6 @@ public class FilaService {
         long emergencias = lista.stream().filter(a -> a.prioridade() == Prioridade.EMERGENCIA).count();
         long prioritarios = lista.stream().filter(a -> a.prioridade() == Prioridade.PRIORITARIO).count();
         long normais = lista.stream().filter(a -> a.prioridade() == Prioridade.NORMAL).count();
-        return new FilaResponse(lista, lista.size(), (int) emergencias, (int) prioritarios, (int) normais, atendidos, chamado);
+        return new FilaResponse(lista, fila.paraArray(), lista.size(), (int) emergencias, (int) prioritarios, (int) normais, atendidos, chamado);
     }
 }

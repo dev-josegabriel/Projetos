@@ -78,18 +78,51 @@ class FilaPrioritariaTest {
     }
 
     @Test
-    void removerDoMeioDoInicioEDoFim() {
+    void aRaizDoHeapEhSempreOProximo() {
+        FilaPrioritaria fila = new FilaPrioritaria();
+        fila.enfileirar(a(1, "Ana", Prioridade.NORMAL));
+        fila.enfileirar(a(2, "Bia", Prioridade.PRIORITARIO));
+        fila.enfileirar(a(3, "Caio", Prioridade.EMERGENCIA));
+        assertEquals("Caio", fila.primeiro().nome());
+        assertEquals("Caio", fila.paraArray().get(0).nome());
+    }
+
+    @Test
+    void cresceAlemDaCapacidadeInicial() {
+        FilaPrioritaria fila = new FilaPrioritaria();
+        for (int i = 1; i <= 30; i++) {
+            fila.enfileirar(a(i, "P" + i, i % 3 == 0 ? Prioridade.EMERGENCIA : Prioridade.NORMAL));
+        }
+        assertEquals(30, fila.tamanho());
+        int anterior = 0;
+        while (!fila.vazia()) {
+            int nivel = fila.desenfileirar().prioridade().getNivel();
+            assertTrue(nivel >= anterior);
+            anterior = nivel;
+        }
+    }
+
+    @Test
+    void removerDoMeioMantemAOrdem() {
         FilaPrioritaria fila = new FilaPrioritaria();
         fila.enfileirar(a(1, "Ana", Prioridade.NORMAL));
         fila.enfileirar(a(2, "Bia", Prioridade.NORMAL));
-        fila.enfileirar(a(3, "Caio", Prioridade.NORMAL));
-        assertTrue(fila.remover(x -> x.id() == 2));
-        assertEquals(List.of("Ana", "Caio"), nomes(fila));
+        fila.enfileirar(a(3, "Caio", Prioridade.PRIORITARIO));
+        fila.enfileirar(a(4, "Duda", Prioridade.EMERGENCIA));
         assertTrue(fila.remover(x -> x.id() == 3));
-        fila.enfileirar(a(4, "Duda", Prioridade.NORMAL));
-        assertEquals(List.of("Ana", "Duda"), nomes(fila));
-        assertTrue(fila.remover(x -> x.id() == 1));
-        assertEquals(List.of("Duda"), nomes(fila));
+        assertEquals(List.of("Duda", "Ana", "Bia"), nomes(fila));
+        assertTrue(fila.remover(x -> x.id() == 4));
+        assertEquals(List.of("Ana", "Bia"), nomes(fila));
         assertFalse(fila.remover(x -> x.id() == 99));
+    }
+
+    @Test
+    void listarNaoMexeNaFilaReal() {
+        FilaPrioritaria fila = new FilaPrioritaria();
+        fila.enfileirar(a(1, "Ana", Prioridade.NORMAL));
+        fila.enfileirar(a(2, "Bia", Prioridade.EMERGENCIA));
+        fila.paraLista();
+        assertEquals(2, fila.tamanho());
+        assertEquals("Bia", fila.primeiro().nome());
     }
 }

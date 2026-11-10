@@ -7,97 +7,74 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Fila com prioridade implementada com LISTA ENCADEADA (sem usar PriorityQueue nem LinkedList do Java).
+ * Fila com prioridade implementada com um HEAP MÍNIMO (árvore binária guardada em um vetor).
+ * Não usa PriorityQueue do Java.
  *
- * A lista é mantida SEMPRE ORDENADA: quem tem prioridade menor (nível 1 = emergência) fica na frente.
- * Entre pessoas com a mesma prioridade vale a ordem de chegada (primeiro a chegar, primeiro a sair).
- * Por isso, "chamar o próximo" é só tirar o nó do início.
+ * Regra do heap: cada pessoa é "mais urgente" que as duas pessoas filhas dela. Por isso a RAIZ (posição 0)
+ * é sempre o próximo a ser chamado.
+ *
+ * Quem é mais urgente? Menor nível de prioridade (1 = emergência). Se o nível for igual, quem chegou antes
+ * (menor id) vem primeiro.
+ *
+ * Posições no vetor: o pai de i fica em (i - 1) / 2; os filhos ficam em 2i + 1 e 2i + 2.
  */
 public class FilaPrioritaria {
 
-    private static final class No {
-        final Atendimento valor;
-        No proximo;
+    private Atendimento[] heap = new Atendimento[8];
+    private int tamanho = 0;
 
-        No(Atendimento valor) {
-            this.valor = valor;
-        }
-    }
-
-    private No inicio;
-    private No fim;
-    private int tamanho;
-
-    /** Coloca a pessoa na posição certa: depois de todos com prioridade igual ou mais urgente. */
+    /** Entra na fila: vai para o fim do vetor e "sobe" enquanto for mais urgente que o pai. O(log n). */
     public void enfileirar(Atendimento atendimento) {
-        No novo = new No(atendimento);
-        int nivel = atendimento.prioridade().getNivel();
-
-        // Caso comum e rápido: fila vazia, ou ninguém com nível maior -> entra no fim.
-        if (inicio == null) {
-            inicio = novo;
-            fim = novo;
-        } else if (fim.valor.prioridade().getNivel() <= nivel) {
-            fim.proximo = novo;
-            fim = novo;
-        } else if (inicio.valor.prioridade().getNivel() > nivel) {
-            // Mais urgente que todo mundo -> vira o primeiro.
-            novo.proximo = inicio;
-            inicio = novo;
-        } else {
-            // Caso do meio: anda até o último nó com prioridade igual ou mais urgente.
-            No atual = inicio;
-            while (atual.proximo != null && atual.proximo.valor.prioridade().getNivel() <= nivel) {
-                atual = atual.proximo;
-            }
-            novo.proximo = atual.proximo;
-            atual.proximo = novo;
+        if (tamanho == heap.length) {
+            Atendimento[] maior = new Atendimento[heap.length * 2];
+            System.arraycopy(heap, 0, maior, 0, tamanho);
+            heap = maior;
         }
+        heap[tamanho] = atendimento;
+        subir(tamanho);
         tamanho++;
     }
 
-    /** Tira e devolve quem está no início (o próximo a ser chamado). Devolve null se a fila está vazia. */
+    /** Chama o próximo: tira a raiz, põe o último no lugar dela e "desce" até a posição certa. O(log n). */
     public Atendimento desenfileirar() {
-        if (inicio == null) {
+        if (tamanho == 0) {
             return null;
         }
-        Atendimento chamado = inicio.valor;
-        inicio = inicio.proximo;
-        if (inicio == null) {
-            fim = null;
-        }
+        Atendimento chamado = heap[0];
         tamanho--;
+        heap[0] = heap[tamanho];
+        heap[tamanho] = null;
+        if (tamanho > 0) {
+            descer(0);
+        }
         return chamado;
     }
 
     /** Olha quem é o próximo, sem tirar da fila. */
     public Atendimento primeiro() {
-        return inicio == null ? null : inicio.valor;
+        return tamanho == 0 ? null : heap[0];
     }
 
     public Atendimento buscar(Predicate<Atendimento> criterio) {
-        for (No atual = inicio; atual != null; atual = atual.proximo) {
-            if (criterio.test(atual.valor)) {
-                return atual.valor;
+        for (int i = 0; i < tamanho; i++) {
+            if (criterio.test(heap[i])) {
+                return heap[i];
             }
         }
         return null;
     }
 
-    /** Remove o primeiro que combinar com o critério (ex.: pessoa que desistiu). Devolve true se removeu. */
+    /** Tira quem desistiu: o último ocupa o lugar dele e depois é reorganizado. Devolve true se removeu. */
     public boolean remover(Predicate<Atendimento> criterio) {
-        No anterior = null;
-        for (No atual = inicio; atual != null; anterior = atual, atual = atual.proximo) {
-            if (criterio.test(atual.valor)) {
-                if (anterior == null) {
-                    inicio = atual.proximo;
-                } else {
-                    anterior.proximo = atual.proximo;
-                }
-                if (atual == fim) {
-                    fim = anterior;
-                }
+        for (int i = 0; i < tamanho; i++) {
+            if (criterio.test(heap[i])) {
                 tamanho--;
+                heap[i] = heap[tamanho];
+                heap[tamanho] = null;
+                if (i < tamanho) {
+                    descer(i);
+                    subir(i);
+                }
                 return true;
             }
         }
@@ -112,12 +89,68 @@ public class FilaPrioritaria {
         return tamanho == 0;
     }
 
-    /** Cópia da fila em ordem de atendimento, para mostrar na tela. */
-    public List<Atendimento> paraLista() {
-        List<Atendimento> lista = new ArrayList<>();
-        for (No atual = inicio; atual != null; atual = atual.proximo) {
-            lista.add(atual.valor);
+    /** O vetor do heap do jeito que está na memória (usado para desenhar a árvore na tela). */
+    public List<Atendimento> paraArray() {
+        List<Atendimento> lista = new ArrayList<>(tamanho);
+        for (int i = 0; i < tamanho; i++) {
+            lista.add(heap[i]);
         }
         return lista;
+    }
+
+    /** Fila na ordem em que as pessoas serão chamadas (trabalha numa cópia, não mexe na fila real). */
+    public List<Atendimento> paraLista() {
+        FilaPrioritaria copia = new FilaPrioritaria();
+        copia.heap = java.util.Arrays.copyOf(heap, heap.length);
+        copia.tamanho = tamanho;
+        List<Atendimento> ordenada = new ArrayList<>(tamanho);
+        while (!copia.vazia()) {
+            ordenada.add(copia.desenfileirar());
+        }
+        return ordenada;
+    }
+
+    // ---------- reorganização do heap ----------
+
+    private boolean maisUrgente(Atendimento a, Atendimento b) {
+        int na = a.prioridade().getNivel();
+        int nb = b.prioridade().getNivel();
+        return na < nb || (na == nb && a.id() < b.id());
+    }
+
+    private void subir(int i) {
+        while (i > 0) {
+            int pai = (i - 1) / 2;
+            if (!maisUrgente(heap[i], heap[pai])) {
+                break;
+            }
+            trocar(i, pai);
+            i = pai;
+        }
+    }
+
+    private void descer(int i) {
+        while (true) {
+            int esquerdo = 2 * i + 1;
+            int direito = 2 * i + 2;
+            int menor = i;
+            if (esquerdo < tamanho && maisUrgente(heap[esquerdo], heap[menor])) {
+                menor = esquerdo;
+            }
+            if (direito < tamanho && maisUrgente(heap[direito], heap[menor])) {
+                menor = direito;
+            }
+            if (menor == i) {
+                break;
+            }
+            trocar(i, menor);
+            i = menor;
+        }
+    }
+
+    private void trocar(int i, int j) {
+        Atendimento temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
     }
 }

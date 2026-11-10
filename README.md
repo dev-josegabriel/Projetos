@@ -11,7 +11,7 @@ Meus projetos organizados por linguagem. Foco em **Java e Spring Boot** (back-en
 | [bibliotecaAPI](Java/bibliotecaAPI) | API REST de gestão de biblioteca (usuários, livros, empréstimos) com Spring Boot e PostgreSQL. |
 | [Calculadora_Java](Java/Calculadora_Java) | Calculadora simples em Java, usando POO. |
 | [ListaTarefas](Java/ListaTarefas) | Lista de tarefas com API REST (Spring Boot) e front-end web, usando uma lista encadeada implementada à mão. |
-| [FilaAtendimento](Java/FilaAtendimento) | Fila de atendimento com prioridade (triagem de clínica), com API Spring Boot, front-end web e fila prioritária feita com lista encadeada. |
+| [FilaAtendimento](Java/FilaAtendimento) | Fila de atendimento com prioridade (triagem de clínica), com API Spring Boot, front-end web e heap mínimo implementado à mão. |
 
 ## Web (HTML/CSS/JS)
 
