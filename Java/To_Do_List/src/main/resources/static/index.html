@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <span class="logo-icon"><i class="bi bi-check2-square"></i></span>
+        <span class="logo-text">TASKFLOW</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboard"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+        <a href="#" class="nav-item" data-section="tarefas"><i class="bi bi-list-task"></i><span>Tarefas</span></a>
+        <a href="#" class="nav-item" data-section="relatorios"><i class="bi bi-bar-chart-line"></i><span>Relatórios</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+        <a href="#" class="nav-item" data-section="configuracoes"><i class="bi bi-gear"></i><span>Configurações</span></a>
+    </div>
+</aside>
+<main class="main-content">
+    <header class="topbar">
+        <div class="topbar-left">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <span class="page-subtitle" id="pageSubtitle">Gerencie suas tarefas</span>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box" id="searchBoxWrap">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" placeholder="Buscar tarefa...">
+            </div>
+            <button class="btn-new-task" id="btnNewTask"><i class="bi bi-plus-lg"></i> Nova Tarefa</button>
+        </div>
+    </header>
+
+    <section id="section-dashboard" class="app-section">
+        <div class="stats-row">
+            <div class="stat-card stat-total"><div class="stat-icon"><i class="bi bi-clipboard-data"></i></div><div class="stat-info"><span class="stat-value" id="totalCount">0</span><span class="stat-label">Total</span></div><div class="stat-glow"></div></div>
+            <div class="stat-card stat-pendente"><div class="stat-icon"><i class="bi bi-hourglass-split"></i></div><div class="stat-info"><span class="stat-value" id="pendenteCount">0</span><span class="stat-label">Pendente</span></div><div class="stat-glow"></div></div>
+            <div class="stat-card stat-andamento"><div class="stat-icon"><i class="bi bi-lightning-charge"></i></div><div class="stat-info"><span class="stat-value" id="andamentoCount">0</span><span class="stat-label">Em Andamento</span></div><div class="stat-glow"></div></div>
+            <div class="stat-card stat-concluida"><div class="stat-icon"><i class="bi bi-check2-circle"></i></div><div class="stat-info"><span class="stat-value" id="concluidaCount">0</span><span class="stat-label">Concluída</span></div><div class="stat-glow"></div></div>
+        </div>
+        <div class="kanban-board">
+            <div class="kanban-column">
+                <div class="column-header header-pendente"><span class="column-dot"></span><span class="column-title">PENDENTE</span><span class="column-count" id="pendenteBadge">0</span></div>
+                <div class="task-list" id="listPendente"></div>
+            </div>
+            <div class="kanban-column">
+                <div class="column-header header-andamento"><span class="column-dot"></span><span class="column-title">EM ANDAMENTO</span><span class="column-count" id="andamentoBadge">0</span></div>
+                <div class="task-list" id="listAndamento"></div>
+            </div>
+            <div class="kanban-column">
+                <div class="column-header header-concluida"><span class="column-dot"></span><span class="column-title">CONCLUIDA</span><span class="column-count" id="concluidaBadge">0</span></div>
+                <div class="task-list" id="listConcluida"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-tarefas" class="app-section hidden">
+        <div class="table-toolbar">
+            <div class="filter-group">
+                <select class="input-custom input-sm" id="filterStatus">
+                    <option value="">Todos os status</option>
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                </select>
+                <select class="input-custom input-sm" id="filterPriority">
+                    <option value="">Todas as prioridades</option>
+                    <option value="5">P5 - Alta</option>
+                    <option value="4">P4 - Alta</option>
+                    <option value="3">P3 - Media</option>
+                    <option value="2">P2 - Baixa</option>
+                    <option value="1">P1 - Baixa</option>
+                </select>
+            </div>
+            <span class="table-count" id="tableCount">0 tarefas</span>
+        </div>
+        <div class="table-wrapper">
+            <table class="task-table">
+                <thead><tr><th>#</th><th>Título</th><th>Descrição</th><th>Status</th><th>Prioridade</th><th>Ações</th></tr></thead>
+                <tbody id="taskTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="section-relatorios" class="app-section hidden">
+        <div class="relatorio-grid">
+            <div class="relatorio-card"><div class="relatorio-card-title"><i class="bi bi-pie-chart"></i> Distribuição por Status</div><div class="chart-bars" id="chartStatus"></div></div>
+            <div class="relatorio-card"><div class="relatorio-card-title"><i class="bi bi-bar-chart"></i> Distribuição por Prioridade</div><div class="chart-bars" id="chartPriority"></div></div>
+            <div class="relatorio-card relatorio-card-wide"><div class="relatorio-card-title"><i class="bi bi-activity"></i> Resumo Geral</div><div class="resumo-stats" id="resumoStats"></div></div>
+        </div>
+    </section>
+
+    <section id="section-configuracoes" class="app-section hidden">
+        <div class="config-grid">
+            <div class="config-card">
+                <div class="config-card-title"><i class="bi bi-palette"></i> Aparência</div>
+                <div class="config-item">
+                    <div class="config-info"><span class="config-label">Cor de destaque</span><span class="config-desc">Cor principal do sistema</span></div>
+                    <div class="color-options" id="colorOptions">
+                        <button class="color-btn active" data-color="#00ff88" style="background:#00ff88"></button>
+                        <button class="color-btn" data-color="#00aaff" style="background:#00aaff"></button>
+                        <button class="color-btn" data-color="#ff44aa" style="background:#ff44aa"></button>
+                        <button class="color-btn" data-color="#ffaa00" style="background:#ffaa00"></button>
+                        <button class="color-btn" data-color="#aa44ff" style="background:#aa44ff"></button>
+                    </div>
+                </div>
+                <div class="config-item">
+                    <div class="config-info"><span class="config-label">Efeito scanline</span><span class="config-desc">Linhas sutis no fundo</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="toggleScanline" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="config-item">
+                    <div class="config-info"><span class="config-label">Animações</span><span class="config-desc">Efeitos de hover e transição</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="toggleAnimations" checked><span class="toggle-slider"></span></label>
+                </div>
+            </div>
+            <div class="config-card">
+                <div class="config-card-title"><i class="bi bi-sliders"></i> Preferências</div>
+                <div class="config-item">
+                    <div class="config-info"><span class="config-label">Confirmar exclusão</span><span class="config-desc">Pedir confirmação ao deletar</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="toggleConfirmDelete" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="config-item">
+                    <div class="config-info"><span class="config-label">Notificações</span><span class="config-desc">Toasts de confirmação</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="toggleToasts" checked><span class="toggle-slider"></span></label>
+                </div>
+            </div>
+            <div class="config-card">
+                <div class="config-card-title"><i class="bi bi-info-circle"></i> Sobre</div>
+                <div class="about-info">
+                    <div class="about-row"><span>Versão</span><span class="mono">1.0.0</span></div>
+                    <div class="about-row"><span>Backend</span><span class="mono">Spring Boot</span></div>
+                    <div class="about-row"><span>Banco</span><span class="mono">PostgreSQL</span></div>
+                    <div class="about-row"><span>Autor</span><span class="mono">José Gabriel</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content task-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">NOVA TAREFA</h5>
+                <button type="button" class="btn-close-modal" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label class="form-label-custom">Título <span class="required">*</span></label>
+                    <input type="text" class="input-custom" id="taskTitle" placeholder="Nome da tarefa...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-custom">Descrição</label>
+                    <textarea class="input-custom" id="taskDescription" rows="3" placeholder="Descreva a tarefa..."></textarea>
+                </div>
+                <div class="form-row-split">
+                    <div class="form-group">
+                        <label class="form-label-custom">Status</label>
+                        <select class="input-custom" id="taskStatus">
+                            <option value="PENDENTE">Pendente</option>
+                            <option value="EM_ANDAMENTO">Em Andamento</option>
+                            <option value="CONCLUIDA">Concluída</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-custom">Prioridade <span class="priority-hint">(1-5)</span></label>
+                        <input type="number" class="input-custom" id="taskPriority" min="1" max="5" placeholder="1 a 5">
+                    </div>
+                </div>
+                <div id="formError" class="form-error"></div>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn-save" id="saveTaskBtn"><i class="bi bi-floppy"></i> Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DELETAR -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content task-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: var(--red);">DELETAR TAREFA</h5>
+                <button type="button" class="btn-close-modal" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body" style="text-align:center; padding: 24px;">
+                <i class="bi bi-exclamation-triangle" style="font-size:40px; color:var(--red); display:block; margin-bottom:14px;"></i>
+                <p style="color:var(--text-primary); font-size:15px; margin-bottom:6px;">Tem certeza que deseja deletar?</p>
+                <p class="delete-task-name" style="color:var(--text-secondary); font-family:var(--font-mono); font-size:13px;"></p>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn-delete-confirm" id="confirmDeleteBtn">
+                    <i class="bi bi-trash3"></i> Deletar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="scripts.js"></script>
+</body>
+</html>
