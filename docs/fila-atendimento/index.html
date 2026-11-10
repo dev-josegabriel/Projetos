@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel | Fila de Atendimento</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="painel" data-titulo="Painel" data-sub="Visão geral da fila de atendimento em tempo real.">
+<main>
+  <div class="stats">
+    <div class="stat"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><div><b id="cTotal">0</b><span>Pessoas na fila</span></div></div>
+    <div class="stat emerg"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div><b id="cEmerg">0</b><span>Emergências</span></div></div>
+    <div class="stat prio"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></div><div><b id="cPrio">0</b><span>Prioritários</span></div></div>
+    <div class="stat atend"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></div><div><b id="cAtend">0</b><span>Já atendidos</span></div></div>
+  </div>
+  <div class="layout">
+  <div class="col">
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Próximos da fila<a href="fila.html">Ver fila completa</a></h2>
+      <ul class="lista" id="proximos"></ul>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Quem está esperando, por prioridade</h2>
+      <div id="barras"></div>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Últimos chamados<a href="historico.html">Ver histórico</a></h2>
+      <ul class="lista" id="ultimos"></ul>
+    </section>
+  </div>
+  <div class="col">
+    <aside class="card chamando">
+      <div class="rotulo">Chamando agora</div>
+      <div id="chamadoBox"><div class="vazio-chamado">Ninguém foi chamado ainda.</div></div>
+      <div class="botao"><button class="grande" id="chamar"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg>Chamar próximo</button></div>
+    </aside>
+    <aside class="card resumo">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Resumo da fila</h2>
+      <dl>
+        <div><dt>Próximo a ser chamado</dt><dd id="pPrimeiro">—</dd></div>
+        <div class="linha"><dt>Último da fila</dt><dd id="pUltimo">—</dd></div>
+        <div class="linha"><dt>Pessoas esperando</dt><dd id="pTam">0 pessoas</dd></div>
+      </dl>
+    </aside>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nova chegada</h2>
+      <p class="texto">Cadastre quem acabou de chegar na recepção.</p>
+      <a href="fila.html">Ir para a fila de espera →</a>
+    </section>
+  </div>
+  </div>
+</main>
+<script src="js/app.js"></script>
+<script>
+iniciar(function (d) {
+  const prox = $('proximos'); prox.innerHTML = '';
+  if (!d.fila.length) { listaVazia(prox, 'A fila está vazia.'); }
+  d.fila.slice(0, 5).forEach((p, i) => prox.appendChild(itemFila(p, i, false)));
+
+  const total = d.total || 1;
+  $('barras').innerHTML = [['EMERGENCIA', d.emergencias], ['PRIORITARIO', d.prioritarios], ['NORMAL', d.normais]].map(function (x) {
+    return '<div class="barra"><span>' + ROTULO[x[0]] + '</span><div class="trilho"><div class="preenche ' + x[0] +
+           '" style="width:' + (x[1] / total * 100) + '%"></div></div><b>' + x[1] + '</b></div>';
+  }).join('');
+
+  const ult = $('ultimos'); ult.innerHTML = '';
+  if (!d.historico.length) { listaVazia(ult, 'Ninguém foi chamado ainda.'); }
+  d.historico.slice(0, 5).forEach(function (p) {
+    const li = document.createElement('li');
+    li.className = 'p-' + p.prioridade;
+    li.innerHTML = '<span class="senha">' + esc(p.senha) + '</span><span class="nome">' + esc(p.nome) + '</span>' +
+      '<span class="badge ' + p.prioridade + '">' + ROTULO[p.prioridade] + '</span>' +
+      '<span class="hora">' + ic('clock') + esc(p.chamadoEm) + '</span>';
+    ult.appendChild(li);
+  });
+});
+</script>
+</body>
+</html>

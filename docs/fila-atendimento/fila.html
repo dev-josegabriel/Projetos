@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila de espera | Fila de Atendimento</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="fila" data-titulo="Fila de espera" data-sub="Cadastre quem chegou, veja a ordem de chamada e remova quem desistiu.">
+<main>
+  <div class="stats">
+    <div class="stat"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><div><b id="cTotal">0</b><span>Pessoas na fila</span></div></div>
+    <div class="stat emerg"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div><b id="cEmerg">0</b><span>Emergências</span></div></div>
+    <div class="stat prio"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></div><div><b id="cPrio">0</b><span>Prioritários</span></div></div>
+    <div class="stat atend"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></div><div><b id="cAtend">0</b><span>Já atendidos</span></div></div>
+  </div>
+  <div class="layout">
+  <div class="col">
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nova chegada</h2>
+      <form id="form">
+        <input type="text" id="nome" placeholder="Nome da pessoa" maxlength="60" autocomplete="off" required>
+        <select id="prioridade">
+          <option value="NORMAL">Normal</option>
+          <option value="PRIORITARIO">Prioritário (idoso, gestante, PCD)</option>
+          <option value="EMERGENCIA">Emergência</option>
+        </select>
+        <button type="submit"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Entrar na fila</button>
+      </form>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Fila de espera</h2>
+      <ul class="lista" id="lista"></ul>
+    </section>
+  </div>
+  <div class="col">
+    <aside class="card chamando">
+      <div class="rotulo">Chamando agora</div>
+      <div id="chamadoBox"><div class="vazio-chamado">Ninguém foi chamado ainda.</div></div>
+      <div class="botao"><button class="grande" id="chamar"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg>Chamar próximo</button></div>
+    </aside>
+    <aside class="card resumo">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Resumo da fila</h2>
+      <dl>
+        <div><dt>Próximo a ser chamado</dt><dd id="pPrimeiro">—</dd></div>
+        <div class="linha"><dt>Último da fila</dt><dd id="pUltimo">—</dd></div>
+        <div class="linha"><dt>Pessoas esperando</dt><dd id="pTam">0 pessoas</dd></div>
+      </dl>
+    </aside>
+  </div>
+  </div>
+</main>
+<script src="js/app.js"></script>
+<script>
+iniciar(function (d) {
+  const ul = $('lista'); ul.innerHTML = '';
+  if (!d.fila.length) { listaVazia(ul, 'A fila está vazia.'); }
+  d.fila.forEach((p, i) => ul.appendChild(itemFila(p, i, true)));
+});
+$('form').addEventListener('submit', async function (ev) {
+  ev.preventDefault();
+  const deu = await executar(
+    chamar(API, { method: 'POST', body: JSON.stringify({ nome: $('nome').value, prioridade: $('prioridade').value }) }),
+    'Pessoa adicionada à fila.');
+  if (deu) { $('nome').value = ''; $('prioridade').value = 'NORMAL'; $('nome').focus(); }
+});
+</script>
+</body>
+</html>

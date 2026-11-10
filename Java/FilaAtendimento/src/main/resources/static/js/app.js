@@ -1,5 +1,5 @@
 /* Código compartilhado por todas as páginas: menu lateral, chamadas à API e desenhos comuns. */
-const API = '/api/fila';
+const API = 'api/fila';
 const $ = (id) => document.getElementById(id);
 const ROTULO = { EMERGENCIA: 'Emergência', PRIORITARIO: 'Prioritário', NORMAL: 'Normal' };
 
@@ -44,7 +44,65 @@ function aviso(msg, ok) {
   aviso.timer = setTimeout(() => { t.className = ''; }, 2800);
 }
 
+/* ---- Modo demonstração: usado só quando não existe servidor (ex.: GitHub Pages).
+   Repete as mesmas regras do FilaService, guardando os dados no navegador. ---- */
+let modoLocal = false;
+const NIVEL = { EMERGENCIA: 1, PRIORITARIO: 2, NORMAL: 3 };
+const CHAVE = 'fila-atendimento-demo';
+let estadoMemoria = null;
+
+function carregarEstado() {
+  try { const t = localStorage.getItem(CHAVE); if (t) { return JSON.parse(t); } } catch (e) { /* sem storage */ }
+  return estadoMemoria || { fila: [], historico: [], proximoId: 1, atendidos: 0, chamado: null };
+}
+function salvarEstado(e) {
+  estadoMemoria = e;
+  try { localStorage.setItem(CHAVE, JSON.stringify(e)); } catch (err) { /* sem storage */ }
+}
+function agora() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+
+function respostaLocal(e) {
+  const fila = e.fila.slice().sort((a, b) => NIVEL[a.prioridade] - NIVEL[b.prioridade] || a.id - b.id);
+  const conta = (p) => fila.filter((x) => x.prioridade === p).length;
+  return { fila: fila, historico: e.historico, total: fila.length, emergencias: conta('EMERGENCIA'),
+           prioritarios: conta('PRIORITARIO'), normais: conta('NORMAL'), atendidos: e.atendidos, chamado: e.chamado };
+}
+
+function apiLocal(url, opcoes) {
+  const metodo = ((opcoes && opcoes.method) || 'GET').toUpperCase();
+  const e = carregarEstado();
+  if (metodo === 'POST' && url.endsWith('/chamar')) {
+    if (!e.fila.length) { throw new Error('Não há ninguém na fila.'); }
+    const proximo = respostaLocal(e).fila[0];
+    e.fila = e.fila.filter((x) => x.id !== proximo.id);
+    e.chamado = proximo; e.atendidos++;
+    e.historico.unshift(Object.assign({}, proximo, { chamadoEm: agora() }));
+  } else if (metodo === 'POST') {
+    const corpo = JSON.parse(opcoes.body);
+    const nome = (corpo.nome || '').trim();
+    if (!nome) { throw new Error('O nome é obrigatório.'); }
+    if (!NIVEL[corpo.prioridade]) { throw new Error('Escolha a prioridade.'); }
+    if (e.fila.some((x) => x.nome.toLowerCase() === nome.toLowerCase())) { throw new Error('Essa pessoa já está na fila.'); }
+    const id = e.proximoId++;
+    e.fila.push({ id: id, senha: corpo.prioridade[0] + String(id).padStart(3, '0'), nome: nome, prioridade: corpo.prioridade, chegada: agora() });
+  } else if (metodo === 'DELETE') {
+    const id = Number(url.split('/').pop());
+    if (!e.fila.some((x) => x.id === id)) { throw new Error('Essa pessoa não está mais na fila.'); }
+    e.fila = e.fila.filter((x) => x.id !== id);
+  }
+  salvarEstado(e);
+  return respostaLocal(e);
+}
+
+async function servidorExiste() {
+  try {
+    const r = await fetch(API);
+    return r.ok && (r.headers.get('content-type') || '').includes('json');
+  } catch (e) { return false; }
+}
+
 async function chamar(url, opcoes) {
+  if (modoLocal) { return apiLocal(url, opcoes); }
   const resp = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opcoes));
   let dados = {};
   try { dados = await resp.json(); } catch (e) { /* resposta sem corpo */ }
@@ -148,8 +206,15 @@ function montarShell() {
 }
 
 /** Cada página chama iniciar(função que desenha o que é só dela). */
-function iniciar(desenhaDaPagina) {
+async function iniciar(desenhaDaPagina) {
   montarShell();
+  modoLocal = !(await servidorExiste());
+  if (modoLocal) {
+    const pilula = document.querySelector('.topo .data');
+    pilula.style.background = '#fffbeb'; pilula.style.color = '#b45309';
+    pilula.title = 'Sem servidor Java: os dados ficam salvos só neste navegador.';
+    pilula.lastChild.textContent = ' Modo demonstração · ' + pilula.lastChild.textContent.trim();
+  }
   desenharPagina = desenhaDaPagina || (() => {});
   ligarChamar();
   executar(chamar(API));

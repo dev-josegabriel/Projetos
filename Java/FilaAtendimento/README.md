@@ -102,3 +102,7 @@ O projeto já tem `Dockerfile` e `render.yaml`. Passo a passo:
 4. Quando terminar (uns 3 a 5 minutos), o Render mostra o link público `https://fila-atendimento-xxxx.onrender.com`.
 
 No plano grátis o serviço "dorme" depois de um tempo parado; o primeiro acesso demora uns 30 segundos.
+
+## Versão online (GitHub Pages)
+
+A pasta `docs/fila-atendimento` do repositório tem uma cópia do site. Sem o servidor Java, o site entra em **modo demonstração**: as mesmas regras rodam em JavaScript e os dados ficam salvos no navegador. Link: https://dev-josegabriel.github.io/Projetos/fila-atendimento/
