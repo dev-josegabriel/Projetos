@@ -51,7 +51,7 @@ Não há. A fila é a "base de dados" (se o servidor reiniciar, volta ao estado 
 
 ### 6) Relacionamentos
 
-Nenhum. Nenhum. Cada pessoa é um item do vetor do heap.
+Nenhum. Cada pessoa é um item independente na lista.
 
 ### 7) Regras de negócio
 
