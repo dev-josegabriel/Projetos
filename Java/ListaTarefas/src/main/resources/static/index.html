@@ -6,83 +6,148 @@
 <title>Lista de Tarefas — Lista Encadeada</title>
 <style>
   :root {
-    --bg: #f5f5f4; --card: #ffffff; --borda: #dddcd8; --texto: #1f2328; --suave: #6b7078;
-    --azul: #4b5563; --verde: #1f2937; --vermelho: #b4534b; --amarelo: #8a6d3b;
+    --bg: #f1f5f9; --card: #ffffff; --borda: #e2e8f0; --texto: #0f172a; --suave: #64748b;
+    --marca: #2563eb; --marca-fundo: #eff6ff; --topo: #0f172a;
+    --ok: #16a34a; --ok-fundo: #f0fdf4; --perigo: #dc2626; --aviso: #d97706;
+    --sombra: 0 1px 2px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.05);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--texto); font-family: "Segoe UI", system-ui, sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
-  h1 { margin: 0 0 4px; font-size: 1.7rem; }
-  .sub { color: var(--suave); margin: 0 0 22px; }
-  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
-  .card h2 { margin: 0 0 12px; font-size: 1.05rem; color: var(--azul); }
+  body { margin: 0; background: var(--bg); color: var(--texto); font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+  .ic { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  header.topo { background: var(--topo); color: #fff; }
+  header.topo .conteudo { max-width: 980px; margin: 0 auto; padding: 22px 18px; display: flex; align-items: center; gap: 14px; }
+  .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--marca); display: grid; place-items: center; }
+  .logo .ic { width: 24px; height: 24px; }
+  header.topo h1 { margin: 0; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+  header.topo p { margin: 2px 0 0; color: #94a3b8; font-size: .9rem; }
+
+  main { max-width: 980px; margin: 0 auto; padding: 24px 18px 60px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--sombra); }
+  .stat .bolha { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--marca-fundo); color: var(--marca); }
+  .stat.pend .bolha { background: #fffbeb; color: var(--aviso); }
+  .stat.conc .bolha { background: var(--ok-fundo); color: var(--ok); }
+  .stat .bolha .ic { width: 22px; height: 22px; }
+  .stat b { display: block; font-size: 1.7rem; line-height: 1.1; }
+  .stat span { color: var(--suave); font-size: .85rem; }
+
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: var(--sombra); }
+  .card h2 { margin: 0 0 14px; font-size: 1.05rem; display: flex; align-items: center; gap: 9px; }
+  .card h2 .ic { color: var(--marca); }
 
   form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   input[type=text], input[type=number], select {
-    background: #ffffff; color: var(--texto); border: 1px solid var(--borda); border-radius: 8px;
-    padding: 10px 12px; font-size: .95rem;
+    background: #fff; color: var(--texto); border: 1px solid #cbd5e1; border-radius: 10px;
+    padding: 11px 13px; font-size: .95rem; font-family: inherit;
   }
+  input[type=text]:focus, input[type=number]:focus, select:focus { outline: 3px solid #bfdbfe; border-color: var(--marca); }
   input[type=text] { flex: 1 1 260px; }
   input[type=number] { width: 90px; }
   button {
-    background: var(--azul); color: #ffffff; border: 0; border-radius: 8px; padding: 10px 16px;
-    font-weight: 600; font-size: .95rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+    background: var(--marca); color: #fff; border: 0; border-radius: 10px; padding: 11px 18px;
+    font-weight: 600; font-size: .95rem; cursor: pointer; transition: background .15s;
   }
-  button:hover { filter: brightness(1.1); }
-  button.sec { background: transparent; color: var(--texto); border: 1px solid var(--borda); }
-  button.mini { padding: 5px 9px; font-size: .85rem; }
-  button.perigo { background: var(--vermelho); color: #ffffff; }
-
-  .contadores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .chip { background: #ffffff; border: 1px solid var(--borda); border-radius: 999px; padding: 4px 12px; font-size: .85rem; color: var(--suave); }
-  .chip b { color: var(--texto); }
+  button:hover { background: #1d4ed8; }
+  button.sec { background: #fff; color: var(--texto); border: 1px solid #cbd5e1; }
+  button.sec:hover { background: #f8fafc; }
+  button.mini { padding: 8px 12px; font-size: .85rem; }
+  button.icone { background: #fff; color: var(--suave); border: 1px solid var(--borda); padding: 8px; }
+  button.icone:hover { color: var(--marca); border-color: var(--marca); background: var(--marca-fundo); }
+  button.icone.perigo:hover { color: var(--perigo); border-color: #fecaca; background: #fef2f2; }
 
   ul#lista { list-style: none; margin: 0; padding: 0; }
   ul#lista li {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--borda);
-    border-radius: 8px; margin-bottom: 8px; background: #ffffff;
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid var(--borda);
+    border-radius: 12px; margin-bottom: 8px; background: #fff;
   }
+  ul#lista li:hover { border-color: #bfdbfe; background: #f8fbff; }
+  ul#lista li.feita { background: #f8fafc; }
   ul#lista li.feita .titulo { text-decoration: line-through; color: var(--suave); }
   .titulo { flex: 1; word-break: break-word; }
-  .pos { color: var(--suave); font-size: .8rem; min-width: 28px; }
-  input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--verde); }
-  .vazio { color: var(--suave); text-align: center; padding: 18px; }
+  .pos { color: var(--marca); background: var(--marca-fundo); font-size: .78rem; font-weight: 700; min-width: 34px; text-align: center; padding: 3px 8px; border-radius: 999px; }
+  input[type=checkbox] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--ok); }
+  .vazio { color: var(--suave); display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px; }
+  .vazio .ic { width: 22px; height: 22px; }
 
-  .acoes { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .acoes { display: flex; justify-content: flex-end; margin-top: 10px; }
 
   /* desenho da lista encadeada */
   .estrutura { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; row-gap: 22px; padding: 6px 2px 2px; }
   .item { display: flex; align-items: center; }
-  .no-wrap { position: relative; padding-top: 20px; }
-  .tag { position: absolute; top: 0; left: 0; font-size: .7rem; font-weight: 700; letter-spacing: .04em; }
-  .tag.head { color: var(--verde); } .tag.tail { color: var(--amarelo); } .tag.both { color: var(--verde); }
-  .no { display: flex; border: 2px solid var(--azul); border-radius: 8px; overflow: hidden; background: #ffffff; }
-  .no.feita { border-color: var(--verde); }
-  .no .valor { padding: 8px 12px; max-width: 170px; font-size: .85rem; }
-  .no .valor small { display: block; color: var(--suave); font-size: .7rem; }
-  .no .ptr { background: var(--azul); color: #ffffff; padding: 0 10px; display: flex; align-items: center; font-weight: 700; font-size: .75rem; }
-  .no.feita .ptr { background: var(--verde); }
-  .seta { color: var(--azul); font-size: 1.4rem; padding: 0 6px; }
-  .nulo { border: 2px dashed var(--borda); border-radius: 8px; padding: 8px 12px; color: var(--suave); font-weight: 700; font-size: .85rem; margin-top: 20px; }
-  .complex { font-size: .88rem; color: var(--suave); line-height: 1.7; margin: 0; padding-left: 18px; }
-  .complex b { color: var(--texto); }
+  .no-wrap { position: relative; padding-top: 22px; }
+  .tag { position: absolute; top: 0; left: 0; font-size: .7rem; font-weight: 800; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; }
+  .tag.head { color: #1d4ed8; background: var(--marca-fundo); }
+  .tag.tail { color: #b45309; background: #fffbeb; }
+  .tag.both { color: #1d4ed8; background: var(--marca-fundo); }
+  .no { display: flex; border: 2px solid var(--marca); border-radius: 12px; overflow: hidden; background: #fff; }
+  .no.feita { border-color: var(--ok); }
+  .no .valor { padding: 9px 13px; max-width: 170px; font-size: .88rem; font-weight: 500; }
+  .no .valor small { display: block; color: var(--suave); font-size: .7rem; font-weight: 400; }
+  .no .ptr { background: var(--marca); color: #fff; padding: 0 11px; display: flex; align-items: center; font-weight: 700; font-size: .75rem; }
+  .no.feita .ptr { background: var(--ok); }
+  .seta { color: var(--suave); padding: 0 8px; display: flex; }
+  .seta .ic { width: 22px; height: 22px; }
+  .nulo { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 8px 13px; color: var(--suave); font-weight: 700; font-size: .85rem; margin-top: 22px; }
+
+  .velocidade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .vel { border: 1px solid var(--borda); border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .vel .bolha { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+  .vel.rapido .bolha { background: var(--ok-fundo); color: var(--ok); }
+  .vel.lento .bolha { background: #fffbeb; color: var(--aviso); }
+  .vel.unica .bolha { background: var(--marca-fundo); color: var(--marca); }
+  .vel b { display: block; margin-bottom: 3px; }
+  .vel span { color: var(--suave); font-size: .88rem; line-height: 1.4; }
 
   #toast {
-    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--vermelho); color: #ffffff;
-    padding: 10px 18px; border-radius: 8px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .25s;
-    max-width: 90vw; z-index: 10;
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--perigo); color: #fff;
+    padding: 11px 20px; border-radius: 10px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .25s;
+    max-width: 90vw; z-index: 10; box-shadow: 0 8px 24px rgba(15,23,42,.25);
   }
-  #toast.ok { background: var(--verde); color: #ffffff; }
+  #toast.ok { background: var(--ok); }
   #toast.mostrar { opacity: 1; }
+  @media (max-width: 720px) { .stats, .velocidade { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check-square" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12"/><path d="M6 2v4l6 6-6 6v4M18 2v4l-6 6 6 6v4"/></symbol>
+  <symbol id="i-sweep" viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M10 18h4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+</svg>
+
+<header class="topo">
+  <div class="conteudo">
+    <div class="logo"><svg class="ic"><use href="#i-check-square"/></svg></div>
+    <div>
+      <h1>Lista de Tarefas</h1>
+      <p>Organize suas tarefas e entregas e veja a lista encadeada funcionando.</p>
+    </div>
+  </div>
+</header>
+
 <main>
-  <h1>📝 Lista de Tarefas</h1>
-  <p class="sub">Feita com uma <b>lista encadeada</b> implementada à mão — embaixo você vê a estrutura de dados funcionando.</p>
+  <div class="stats">
+    <div class="stat"><div class="bolha"><svg class="ic"><use href="#i-list"/></svg></div><div><b id="cTotal">0</b><span>Total de tarefas</span></div></div>
+    <div class="stat pend"><div class="bolha"><svg class="ic"><use href="#i-clock"/></svg></div><div><b id="cPend">0</b><span>Pendentes</span></div></div>
+    <div class="stat conc"><div class="bolha"><svg class="ic"><use href="#i-circle-check"/></svg></div><div><b id="cConc">0</b><span>Concluídas</span></div></div>
+  </div>
 
   <section class="card">
-    <h2>Nova tarefa</h2>
+    <h2><svg class="ic"><use href="#i-plus"/></svg>Nova tarefa</h2>
     <form id="form">
       <input type="text" id="titulo" placeholder="O que precisa ser feito?" maxlength="100" autocomplete="off" required>
       <select id="onde">
@@ -91,33 +156,28 @@
         <option value="posicao">Numa posição…</option>
       </select>
       <input type="number" id="posicao" min="0" value="1" title="Posição (começa em 0)" style="display:none">
-      <button type="submit">Adicionar</button>
+      <button type="submit"><svg class="ic"><use href="#i-plus"/></svg>Adicionar</button>
     </form>
   </section>
 
   <section class="card">
-    <h2>Minhas tarefas</h2>
-    <div class="contadores">
-      <span class="chip">Total: <b id="cTotal">0</b></span>
-      <span class="chip">Pendentes: <b id="cPend">0</b></span>
-      <span class="chip">Concluídas: <b id="cConc">0</b></span>
-    </div>
+    <h2><svg class="ic"><use href="#i-list"/></svg>Minhas tarefas</h2>
     <ul id="lista"></ul>
-    <div class="acoes"><button class="sec mini" id="limpar">🧹 Limpar concluídas</button></div>
+    <div class="acoes"><button class="sec mini" id="limpar"><svg class="ic"><use href="#i-sweep"/></svg>Limpar concluídas</button></div>
   </section>
 
   <section class="card">
-    <h2>Como a lista está guardada na memória</h2>
+    <h2><svg class="ic"><use href="#i-link"/></svg>Como a lista está guardada na memória</h2>
     <div class="estrutura" id="estrutura"></div>
   </section>
 
   <section class="card">
-    <h2>Custo de cada operação</h2>
-    <ul class="complex">
-      <li>Adicionar no <b>início</b> ou no <b>fim</b>: <b>O(1)</b> — a lista guarda o início e o fim, então não precisa andar.</li>
-      <li>Adicionar numa <b>posição</b>, <b>buscar</b> ou <b>remover</b>: <b>O(n)</b> — precisa andar nó por nó até achar.</li>
-      <li><b>Limpar concluídas</b>: <b>O(n)</b> — uma única passada pela lista, religando os nós.</li>
-    </ul>
+    <h2><svg class="ic"><use href="#i-zap"/></svg>Velocidade de cada operação</h2>
+    <div class="velocidade">
+      <div class="vel rapido"><div class="bolha"><svg class="ic"><use href="#i-zap"/></svg></div><div><b>Rápido</b><span>Adicionar no início ou no fim: a lista já sabe onde ficam.</span></div></div>
+      <div class="vel lento"><div class="bolha"><svg class="ic"><use href="#i-hourglass"/></svg></div><div><b>Mais lento</b><span>Inserir no meio, buscar ou remover: é preciso passar por um nó de cada vez.</span></div></div>
+      <div class="vel unica"><div class="bolha"><svg class="ic"><use href="#i-sweep"/></svg></div><div><b>Limpar concluídas</b><span>Uma única passada pela lista, religando os nós.</span></div></div>
+    </div>
   </section>
 </main>
 <div id="toast"></div>
@@ -125,6 +185,7 @@
 <script>
 const API = '/api/tarefas';
 const $ = (id) => document.getElementById(id);
+const ic = (nome) => '<svg class="ic" aria-hidden="true"><use href="#i-' + nome + '"/></svg>';
 
 function esc(texto) {
   const d = document.createElement('div');
@@ -172,7 +233,7 @@ function desenharLista(tarefas) {
   const ul = $('lista');
   ul.innerHTML = '';
   if (tarefas.length === 0) {
-    ul.innerHTML = '<div class="vazio">Nenhuma tarefa. Adicione a primeira acima!</div>';
+    ul.innerHTML = '<div class="vazio">' + ic('inbox') + '<span>Nenhuma tarefa por aqui. Adicione a primeira acima.</span></div>';
     return;
   }
   tarefas.forEach((t, i) => {
@@ -182,8 +243,8 @@ function desenharLista(tarefas) {
       '<span class="pos">#' + i + '</span>' +
       '<input type="checkbox" ' + (t.concluida ? 'checked' : '') + ' title="Concluir / reabrir">' +
       '<span class="titulo">' + esc(t.titulo) + '</span>' +
-      '<button class="sec mini" data-acao="editar" title="Editar">✏️</button>' +
-      '<button class="perigo mini" data-acao="remover" title="Remover">✕</button>';
+      '<button class="icone" data-acao="editar" title="Editar">' + ic('pencil') + '</button>' +
+      '<button class="icone perigo" data-acao="remover" title="Remover">' + ic('trash') + '</button>';
 
     li.querySelector('input').addEventListener('change', () =>
       executar(chamar(API + '/' + t.id + '/concluir', { method: 'PATCH' })));
@@ -225,7 +286,7 @@ function desenharEstrutura(tarefas) {
           '<div class="ptr">próx</div>' +
         '</div>' +
       '</div>' +
-      '<span class="seta">→</span>';
+      '<span class="seta">' + ic('arrow') + '</span>';
     box.appendChild(item);
   });
   const nulo = document.createElement('div');
