@@ -59,13 +59,13 @@
   button.grande { width: 100%; padding: 15px 18px; font-size: 1.05rem; border-radius: 12px; }
   button:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-  ul#lista { list-style: none; margin: 0; padding: 0; }
-  ul#lista li {
+  ul#lista, ul#historico { list-style: none; margin: 0; padding: 0; }
+  ul#lista li, ul#historico li {
     display: flex; align-items: center; gap: 12px; padding: 13px 16px; border: 1px solid var(--borda);
     border-radius: 12px; margin-bottom: 8px; background: #fff; border-left: 5px solid var(--normal);
   }
-  ul#lista li.p-EMERGENCIA { border-left-color: var(--emerg); }
-  ul#lista li.p-PRIORITARIO { border-left-color: var(--prio); }
+  ul#lista li.p-EMERGENCIA, ul#historico li.p-EMERGENCIA { border-left-color: var(--emerg); }
+  ul#lista li.p-PRIORITARIO, ul#historico li.p-PRIORITARIO { border-left-color: var(--prio); }
   ul#lista li.proximo { background: #f8fbff; box-shadow: 0 0 0 2px #bfdbfe; }
   .ordem { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: var(--suave); font-weight: 700; font-size: .85rem; display: grid; place-items: center; flex: none; }
   li.proximo .ordem { background: var(--marca); color: #fff; }
@@ -99,47 +99,6 @@
   .regra b { display: block; margin-bottom: 2px; }
   .regra span { color: var(--suave); font-size: .88rem; line-height: 1.4; }
   .nota { color: var(--suave); font-size: .88rem; line-height: 1.45; margin: 4px 0 0; }
-
-  /* desenho da fila encadeada */
-  .estrutura { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; row-gap: 22px; padding: 6px 2px 2px; }
-  .item { display: flex; align-items: center; }
-  .no-wrap { position: relative; padding-top: 22px; }
-  .tag { position: absolute; top: 0; left: 0; font-size: .7rem; font-weight: 800; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-  .tag.head { color: #1d4ed8; background: var(--marca-fundo); }
-  .tag.tail { color: #b45309; background: var(--prio-fundo); }
-  .tag.both { color: #1d4ed8; background: var(--marca-fundo); }
-  .no { display: flex; border: 2px solid var(--normal); border-radius: 12px; overflow: hidden; background: #fff; }
-  .no.EMERGENCIA { border-color: var(--emerg); }
-  .no.PRIORITARIO { border-color: var(--prio); }
-  .no .valor { padding: 9px 13px; max-width: 150px; font-size: .88rem; font-weight: 500; }
-  .no .valor small { display: block; color: var(--suave); font-size: .7rem; font-weight: 600; }
-  .no .ptr { background: var(--normal); color: #fff; padding: 0 11px; display: flex; align-items: center; font-weight: 700; font-size: .75rem; }
-  .no.EMERGENCIA .ptr { background: var(--emerg); }
-  .no.PRIORITARIO .ptr { background: var(--prio); }
-  .seta { color: var(--suave); padding: 0 8px; display: flex; }
-  .seta .ic { width: 22px; height: 22px; }
-  .nulo { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 8px 13px; color: var(--suave); font-weight: 700; font-size: .85rem; margin-top: 22px; }
-
-
-  /* desenho do heap (árvore em níveis + vetor) */
-  .arvore { display: flex; flex-direction: column; gap: 14px; }
-  .nivel { display: flex; align-items: center; gap: 14px; }
-  .nivel .rot { width: 78px; flex: none; color: var(--suave); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-  .nivel .nos { display: flex; justify-content: center; gap: 12px; flex: 1; flex-wrap: wrap; }
-  .noh { position: relative; border: 2px solid var(--normal); border-radius: 12px; padding: 8px 14px; background: #fff; min-width: 120px; text-align: center; }
-  .noh.EMERGENCIA { border-color: var(--emerg); background: var(--emerg-fundo); }
-  .noh.PRIORITARIO { border-color: var(--prio); background: var(--prio-fundo); }
-  .noh.NORMAL { background: var(--normal-fundo); }
-  .noh small { display: block; color: var(--suave); font-size: .7rem; font-weight: 700; }
-  .noh b { font-size: .9rem; font-weight: 600; }
-  .noh .raiz { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--marca); color: #fff; font-size: .62rem; font-weight: 800; letter-spacing: .05em; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
-  .vetor { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--borda); align-items: flex-end; }
-  .vetor .rot { width: 100%; color: var(--suave); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
-  .cel { border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; min-width: 64px; overflow: hidden; background: #fff; }
-  .cel i { display: block; font-style: normal; background: #f1f5f9; color: var(--suave); font-size: .68rem; font-weight: 700; padding: 2px 0; }
-  .cel span { display: block; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .8rem; font-weight: 700; padding: 5px 6px; }
-  .cel.EMERGENCIA span { color: #b91c1c; } .cel.PRIORITARIO span { color: #b45309; } .cel.NORMAL span { color: #1d4ed8; }
-  .nota-heap { color: var(--suave); font-size: .86rem; line-height: 1.45; margin: 14px 0 0; }
 
   #toast {
     position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--emerg); color: #fff;
@@ -175,7 +134,7 @@
     <div class="logo"><svg class="ic"><use href="#i-heart"/></svg></div>
     <div>
       <h1>Fila de Atendimento</h1>
-      <p>Triagem com prioridade: emergências e prioritários são chamados antes, sem furar a vez de quem tem a mesma prioridade. Feito com heap.</p>
+      <p>Triagem com prioridade: emergências e prioritários são chamados antes, sem furar a vez de quem tem a mesma prioridade. </p>
     </div>
   </div>
 </header>
@@ -209,8 +168,8 @@
     </section>
 
     <section class="card">
-      <h2><svg class="ic"><use href="#i-link"/></svg>Como a fila está guardada na memória (heap)</h2>
-      <div class="estrutura" id="estrutura"></div>
+      <h2><svg class="ic"><use href="#i-clock"/></svg>Últimos chamados</h2>
+      <ul id="historico"></ul>
     </section>
   </div>
 
@@ -224,8 +183,8 @@
     <aside class="card resumo">
       <h2><svg class="ic"><use href="#i-layers"/></svg>Resumo da fila</h2>
       <dl>
-        <div><dt>Próximo a ser chamado (raiz)</dt><dd id="pPrimeiro">—</dd></div>
-        <div class="linha"><dt>Último da fila (fim)</dt><dd id="pUltimo">—</dd></div>
+        <div><dt>Próximo a ser chamado</dt><dd id="pPrimeiro">—</dd></div>
+        <div class="linha"><dt>Último da fila</dt><dd id="pUltimo">—</dd></div>
         <div class="linha"><dt>Pessoas esperando</dt><dd id="pTam">0 pessoas</dd></div>
       </dl>
     </aside>
@@ -298,7 +257,7 @@ function desenhar(dados) {
       '<span class="badge ' + dados.chamado.prioridade + '">' + ROTULO[dados.chamado.prioridade] + '</span>'
     : '<div class="vazio-chamado">Ninguém foi chamado ainda.</div>';
   desenharLista(dados.fila);
-  desenharEstrutura(dados.heap);
+  desenharHistorico(dados.historico);
 }
 
 function desenharLista(fila) {
@@ -324,30 +283,22 @@ function desenharLista(fila) {
   });
 }
 
-function desenharEstrutura(heap) {
-  const box = $('estrutura');
-  box.innerHTML = '';
-  if (heap.length === 0) {
-    box.innerHTML = '<div class="nulo">heap vazio (tamanho = 0)</div>';
+function desenharHistorico(hist) {
+  const ul = $('historico');
+  ul.innerHTML = '';
+  if (hist.length === 0) {
+    ul.innerHTML = '<div class="vazio">' + ic('inbox') + '<span>Ninguém foi chamado ainda.</span></div>';
     return;
   }
-  let html = '<div class="arvore">';
-  let nivel = 0;
-  for (let ini = 0; ini < heap.length; ini += Math.pow(2, nivel), nivel++) {
-    const fim = Math.min(heap.length, ini + Math.pow(2, nivel));
-    html += '<div class="nivel"><div class="rot">' + (nivel === 0 ? 'Raiz' : 'Nível ' + nivel) + '</div><div class="nos">';
-    for (let i = ini; i < fim; i++) {
-      const p = heap[i];
-      html += '<div class="noh ' + p.prioridade + '">' + (i === 0 ? '<span class="raiz">PRÓXIMO</span>' : '') +
-              '<small>[' + i + '] ' + esc(p.senha) + '</small><b>' + esc(p.nome) + '</b></div>';
-    }
-    html += '</div></div>';
-  }
-  html += '</div><div class="vetor"><div class="rot">Como fica no vetor (memória)</div>';
-  heap.forEach((p, i) => { html += '<div class="cel ' + p.prioridade + '"><i>' + i + '</i><span>' + esc(p.senha) + '</span></div>'; });
-  html += '</div><p class="nota-heap">Cada pessoa é mais urgente que as duas logo abaixo dela. Por isso a raiz é sempre o próximo a ser chamado. ' +
-          'Os filhos da posição i ficam em 2i+1 e 2i+2.</p>';
-  box.innerHTML = html;
+  hist.forEach((p) => {
+    const li = document.createElement('li');
+    li.className = 'p-' + p.prioridade;
+    li.innerHTML =
+      '<span class="senha">' + esc(p.senha) + '</span>' +
+      '<span class="nome">' + esc(p.nome) + '</span>' +
+      '<span class="badge ' + p.prioridade + '">' + ROTULO[p.prioridade] + '</span>';
+    ul.appendChild(li);
+  });
 }
 
 $('form').addEventListener('submit', async (ev) => {

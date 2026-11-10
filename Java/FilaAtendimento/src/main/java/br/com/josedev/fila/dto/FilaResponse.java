@@ -4,10 +4,10 @@ import br.com.josedev.fila.model.Atendimento;
 
 import java.util.List;
 
-/** Fila na ordem de chamada, o vetor do heap (para desenhar a árvore) e os contadores já calculados. */
+/** Fila na ordem de chamada, os últimos chamados e os contadores já calculados. */
 public record FilaResponse(
         List<Atendimento> fila,
-        List<Atendimento> heap,
+        List<Atendimento> historico,
         int total,
         int emergencias,
         int prioritarios,

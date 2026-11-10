@@ -82,4 +82,22 @@ class FilaServiceTest {
         Atendimento a = s.listar().fila().stream().filter(x -> x.nome().equals("Paulo")).findFirst().get();
         assertTrue(a.senha().startsWith("E"));
     }
+
+    @Test
+    void mesmaPrioridadeSegueOrdemDeChegada() {
+        FilaService s = new FilaService();
+        s.chegar("Ana", Prioridade.NORMAL);
+        List<String> n = nomes(s.listar());
+        assertTrue(n.indexOf("Maria Souza") < n.indexOf("João Pereira"));
+        assertTrue(n.indexOf("João Pereira") < n.indexOf("Ana"));
+    }
+
+    @Test
+    void historicoGuardaOsUltimosChamadosComOMaisNovoPrimeiro() {
+        FilaService s = new FilaService();
+        s.chamarProximo();
+        FilaResponse r = s.chamarProximo();
+        assertEquals("Helena Barros", r.historico().get(0).nome());
+        assertEquals("Carlos Lima", r.historico().get(1).nome());
+    }
 }

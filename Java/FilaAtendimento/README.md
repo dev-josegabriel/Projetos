@@ -2,7 +2,7 @@
 
 Sistema de triagem para a recepção de uma clínica: **emergências** são chamadas antes dos **prioritários** (idosos, gestantes, PCD), e estes antes dos **normais**. Quem tem a mesma prioridade é chamado por ordem de chegada.
 
-API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As pessoas ficam guardadas em um **heap mínimo** (a estrutura clássica de fila com prioridade), implementado à mão, sem `PriorityQueue` do Java. A tela desenha o heap como árvore e como vetor.
+API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As pessoas ficam guardadas em uma lista na memória do servidor e a fila é mostrada sempre na ordem certa de chamada.
 
 ## Problema que resolve
 
@@ -61,16 +61,16 @@ Nenhum. Nenhum. Cada pessoa é um item do vetor do heap.
 - A mesma pessoa não entra duas vezes (ignora maiúsculas).
 - Chamar o próximo com a fila vazia dá erro 409; cancelar quem não está na fila dá 404.
 
-## Estrutura de dados
+## Regra de prioridade
 
-`FilaPrioritaria` é um **heap mínimo**: uma árvore binária guardada em um vetor. Cada pessoa é mais urgente que as duas filhas dela, então a **raiz (posição 0) é sempre o próximo a ser chamado**.
+A fila é montada pelo `FilaService`, que guarda as pessoas em uma lista e a ordena com um `Comparator`:
 
-- **Quem é mais urgente:** menor nível de prioridade (1 = emergência). Se o nível for igual, quem chegou antes (menor id).
-- **Posições no vetor:** o pai de `i` fica em `(i - 1) / 2`; os filhos ficam em `2i + 1` e `2i + 2`.
-- **Entrar na fila:** a pessoa vai para o fim do vetor e *sobe* enquanto for mais urgente que o pai. São poucos passos (O(log n)).
-- **Chamar o próximo:** tira a raiz, coloca a última pessoa no lugar e *desce* trocando com o filho mais urgente (O(log n)). Ver quem é o próximo é instantâneo.
-- **Cancelar:** a última pessoa ocupa o lugar de quem saiu e é reorganizada (sobe ou desce).
-- O vetor dobra de tamanho quando enche.
+1. **Emergência**, depois **Prioritário**, depois **Normal**.
+2. No mesmo nível, quem chegou antes (menor id) é chamado antes.
+
+- **Entrar na fila:** a pessoa é adicionada e a fila já aparece na ordem certa.
+- **Chamar o próximo:** sai o primeiro da fila ordenada e vai para "Últimos chamados".
+- **Cancelar:** a pessoa é removida da lista.
 
 ## API
 
