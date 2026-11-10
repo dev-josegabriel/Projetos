@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila de Atendimento com Prioridade</title>
+<style>
+  :root {
+    --bg: #f1f5f9; --card: #ffffff; --borda: #e2e8f0; --texto: #0f172a; --suave: #64748b;
+    --marca: #2563eb; --marca-fundo: #eff6ff; --topo: #0f172a;
+    --emerg: #dc2626; --emerg-fundo: #fef2f2; --prio: #d97706; --prio-fundo: #fffbeb;
+    --normal: #2563eb; --normal-fundo: #eff6ff; --ok: #16a34a; --ok-fundo: #f0fdf4;
+    --sombra: 0 1px 2px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.05);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--texto); font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+  .ic { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  header.topo { background: var(--topo); color: #fff; }
+  header.topo .conteudo { max-width: 1360px; margin: 0 auto; padding: 22px 18px; display: flex; align-items: center; gap: 14px; }
+  .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--marca); display: grid; place-items: center; }
+  .logo .ic { width: 24px; height: 24px; }
+  header.topo h1 { margin: 0; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+  header.topo p { margin: 2px 0 0; color: #94a3b8; font-size: .9rem; }
+
+  main { max-width: 1360px; margin: 0 auto; padding: 24px 18px 60px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+  .col { min-width: 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--sombra); }
+  .stat .bolha { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--marca-fundo); color: var(--marca); }
+  .stat.emerg .bolha { background: var(--emerg-fundo); color: var(--emerg); }
+  .stat.prio .bolha { background: var(--prio-fundo); color: var(--prio); }
+  .stat.atend .bolha { background: var(--ok-fundo); color: var(--ok); }
+  .stat .bolha .ic { width: 22px; height: 22px; }
+  .stat b { display: block; font-size: 1.7rem; line-height: 1.1; }
+  .stat span { color: var(--suave); font-size: .85rem; }
+
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: var(--sombra); }
+  .card h2 { margin: 0 0 14px; font-size: 1.05rem; display: flex; align-items: center; gap: 9px; }
+  .card h2 .ic { color: var(--marca); }
+
+  form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input[type=text], select {
+    background: #fff; color: var(--texto); border: 1px solid #cbd5e1; border-radius: 10px;
+    padding: 11px 13px; font-size: .95rem; font-family: inherit;
+  }
+  input[type=text]:focus, select:focus { outline: 3px solid #bfdbfe; border-color: var(--marca); }
+  input[type=text] { flex: 1 1 240px; }
+  button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;
+    background: var(--marca); color: #fff; border: 0; border-radius: 10px; padding: 11px 18px;
+    font-weight: 600; font-size: .95rem; cursor: pointer; transition: background .15s;
+  }
+  button:hover { background: #1d4ed8; }
+  button.icone { background: #fff; color: var(--suave); border: 1px solid var(--borda); padding: 8px; }
+  button.icone:hover { color: var(--emerg); border-color: #fecaca; background: #fef2f2; }
+  button.grande { width: 100%; padding: 15px 18px; font-size: 1.05rem; border-radius: 12px; }
+  button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  ul#lista { list-style: none; margin: 0; padding: 0; }
+  ul#lista li {
+    display: flex; align-items: center; gap: 12px; padding: 13px 16px; border: 1px solid var(--borda);
+    border-radius: 12px; margin-bottom: 8px; background: #fff; border-left: 5px solid var(--normal);
+  }
+  ul#lista li.p-EMERGENCIA { border-left-color: var(--emerg); }
+  ul#lista li.p-PRIORITARIO { border-left-color: var(--prio); }
+  ul#lista li.proximo { background: #f8fbff; box-shadow: 0 0 0 2px #bfdbfe; }
+  .ordem { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: var(--suave); font-weight: 700; font-size: .85rem; display: grid; place-items: center; flex: none; }
+  li.proximo .ordem { background: var(--marca); color: #fff; }
+  .senha { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 700; font-size: .9rem; background: #f1f5f9; padding: 4px 9px; border-radius: 8px; }
+  .nome { flex: 1; word-break: break-word; font-weight: 500; }
+  .hora { color: var(--suave); font-size: .82rem; display: flex; align-items: center; gap: 5px; }
+  .badge { font-size: .74rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; letter-spacing: .02em; }
+  .badge.EMERGENCIA { color: #b91c1c; background: var(--emerg-fundo); }
+  .badge.PRIORITARIO { color: #b45309; background: var(--prio-fundo); }
+  .badge.NORMAL { color: #1d4ed8; background: var(--normal-fundo); }
+  .vazio { color: var(--suave); display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px; }
+  .vazio .ic { width: 22px; height: 22px; }
+
+  .chamando { text-align: center; }
+  .chamando .rotulo { color: var(--suave); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .chamando .senha-grande { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 3.2rem; font-weight: 800; line-height: 1.1; margin: 8px 0 2px; color: var(--marca); }
+  .chamando .quem { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+  .chamando .vazio-chamado { color: var(--suave); padding: 14px 0 6px; }
+  .chamando .botao { margin-top: 16px; }
+
+  .resumo dl { margin: 0; display: grid; gap: 12px; }
+  .resumo dt { color: var(--suave); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+  .resumo dd { margin: 2px 0 0; font-weight: 600; word-break: break-word; }
+  .resumo .linha { border-top: 1px solid var(--borda); padding-top: 12px; }
+
+  .regra { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--borda); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+  .regra .bolha { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; font-weight: 800; }
+  .regra.n1 .bolha { background: var(--emerg-fundo); color: var(--emerg); }
+  .regra.n2 .bolha { background: var(--prio-fundo); color: var(--prio); }
+  .regra.n3 .bolha { background: var(--normal-fundo); color: var(--normal); }
+  .regra b { display: block; margin-bottom: 2px; }
+  .regra span { color: var(--suave); font-size: .88rem; line-height: 1.4; }
+  .nota { color: var(--suave); font-size: .88rem; line-height: 1.45; margin: 4px 0 0; }
+
+  /* desenho da fila encadeada */
+  .estrutura { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; row-gap: 22px; padding: 6px 2px 2px; }
+  .item { display: flex; align-items: center; }
+  .no-wrap { position: relative; padding-top: 22px; }
+  .tag { position: absolute; top: 0; left: 0; font-size: .7rem; font-weight: 800; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag.head { color: #1d4ed8; background: var(--marca-fundo); }
+  .tag.tail { color: #b45309; background: var(--prio-fundo); }
+  .tag.both { color: #1d4ed8; background: var(--marca-fundo); }
+  .no { display: flex; border: 2px solid var(--normal); border-radius: 12px; overflow: hidden; background: #fff; }
+  .no.EMERGENCIA { border-color: var(--emerg); }
+  .no.PRIORITARIO { border-color: var(--prio); }
+  .no .valor { padding: 9px 13px; max-width: 150px; font-size: .88rem; font-weight: 500; }
+  .no .valor small { display: block; color: var(--suave); font-size: .7rem; font-weight: 600; }
+  .no .ptr { background: var(--normal); color: #fff; padding: 0 11px; display: flex; align-items: center; font-weight: 700; font-size: .75rem; }
+  .no.EMERGENCIA .ptr { background: var(--emerg); }
+  .no.PRIORITARIO .ptr { background: var(--prio); }
+  .seta { color: var(--suave); padding: 0 8px; display: flex; }
+  .seta .ic { width: 22px; height: 22px; }
+  .nulo { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 8px 13px; color: var(--suave); font-weight: 700; font-size: .85rem; margin-top: 22px; }
+
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--emerg); color: #fff;
+    padding: 11px 20px; border-radius: 10px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .25s;
+    max-width: 90vw; z-index: 10; box-shadow: 0 8px 24px rgba(15,23,42,.25);
+  }
+  #toast.ok { background: var(--ok); }
+  #toast.mostrar { opacity: 1; }
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .stats { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+</svg>
+
+<header class="topo">
+  <div class="conteudo">
+    <div class="logo"><svg class="ic"><use href="#i-heart"/></svg></div>
+    <div>
+      <h1>Fila de Atendimento</h1>
+      <p>Triagem com prioridade: emergências e prioritários são chamados antes, sem furar a vez de quem tem a mesma prioridade.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat"><div class="bolha"><svg class="ic"><use href="#i-users"/></svg></div><div><b id="cTotal">0</b><span>Pessoas na fila</span></div></div>
+    <div class="stat emerg"><div class="bolha"><svg class="ic"><use href="#i-alert"/></svg></div><div><b id="cEmerg">0</b><span>Emergências</span></div></div>
+    <div class="stat prio"><div class="bolha"><svg class="ic"><use href="#i-star"/></svg></div><div><b id="cPrio">0</b><span>Prioritários</span></div></div>
+    <div class="stat atend"><div class="bolha"><svg class="ic"><use href="#i-check"/></svg></div><div><b id="cAtend">0</b><span>Já atendidos</span></div></div>
+  </div>
+
+  <div class="layout">
+  <div class="col">
+    <section class="card">
+      <h2><svg class="ic"><use href="#i-plus"/></svg>Nova chegada</h2>
+      <form id="form">
+        <input type="text" id="nome" placeholder="Nome da pessoa" maxlength="60" autocomplete="off" required>
+        <select id="prioridade">
+          <option value="NORMAL">Normal</option>
+          <option value="PRIORITARIO">Prioritário (idoso, gestante, PCD)</option>
+          <option value="EMERGENCIA">Emergência</option>
+        </select>
+        <button type="submit"><svg class="ic"><use href="#i-plus"/></svg>Entrar na fila</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2><svg class="ic"><use href="#i-list"/></svg>Fila de espera</h2>
+      <ul id="lista"></ul>
+    </section>
+
+    <section class="card">
+      <h2><svg class="ic"><use href="#i-link"/></svg>Como a fila está guardada na memória</h2>
+      <div class="estrutura" id="estrutura"></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <aside class="card chamando">
+      <div class="rotulo">Chamando agora</div>
+      <div id="chamadoBox"><div class="vazio-chamado">Ninguém foi chamado ainda.</div></div>
+      <div class="botao"><button class="grande" id="chamar"><svg class="ic"><use href="#i-megaphone"/></svg>Chamar próximo</button></div>
+    </aside>
+
+    <aside class="card resumo">
+      <h2><svg class="ic"><use href="#i-layers"/></svg>Resumo da fila</h2>
+      <dl>
+        <div><dt>Próximo a ser chamado (início)</dt><dd id="pPrimeiro">—</dd></div>
+        <div class="linha"><dt>Último da fila (fim)</dt><dd id="pUltimo">—</dd></div>
+        <div class="linha"><dt>Pessoas esperando</dt><dd id="pTam">0 pessoas</dd></div>
+      </dl>
+    </aside>
+
+    <section class="card">
+      <h2><svg class="ic"><use href="#i-star"/></svg>Como a prioridade funciona</h2>
+      <div class="regra n1"><div class="bolha">1</div><div><b>Emergência</b><span>Passa na frente de todos.</span></div></div>
+      <div class="regra n2"><div class="bolha">2</div><div><b>Prioritário</b><span>Idosos, gestantes e pessoas com deficiência. Vêm depois das emergências.</span></div></div>
+      <div class="regra n3"><div class="bolha">3</div><div><b>Normal</b><span>Atendidos por último.</span></div></div>
+      <p class="nota">Quem tem a mesma prioridade é chamado por ordem de chegada.</p>
+    </section>
+  </div>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+const API = '/api/fila';
+const $ = (id) => document.getElementById(id);
+const ic = (nome) => '<svg class="ic" aria-hidden="true"><use href="#i-' + nome + '"/></svg>';
+const ROTULO = { EMERGENCIA: 'Emergência', PRIORITARIO: 'Prioritário', NORMAL: 'Normal' };
+
+function esc(texto) {
+  const d = document.createElement('div');
+  d.textContent = texto;
+  return d.innerHTML;
+}
+
+function aviso(msg, ok) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'mostrar' + (ok ? ' ok' : '');
+  clearTimeout(aviso.timer);
+  aviso.timer = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+async function chamar(url, opcoes) {
+  const resp = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opcoes));
+  let dados = {};
+  try { dados = await resp.json(); } catch (e) { /* resposta sem corpo */ }
+  if (!resp.ok) { throw new Error(dados.erro || 'Algo deu errado.'); }
+  return dados;
+}
+
+async function executar(promessa, mensagemOk) {
+  try {
+    const dados = await promessa;
+    desenhar(dados);
+    if (mensagemOk) { aviso(mensagemOk, true); }
+    return true;
+  } catch (e) {
+    aviso(e.message);
+    return false;
+  }
+}
+
+function desenhar(dados) {
+  $('cTotal').textContent = dados.total;
+  $('cEmerg').textContent = dados.emergencias;
+  $('cPrio').textContent = dados.prioritarios;
+  $('cAtend').textContent = dados.atendidos;
+  $('pPrimeiro').textContent = dados.fila.length ? dados.fila[0].nome + ' (' + dados.fila[0].senha + ')' : '—';
+  const ult = dados.fila[dados.fila.length - 1];
+  $('pUltimo').textContent = ult ? ult.nome + ' (' + ult.senha + ')' : '—';
+  $('pTam').textContent = dados.total + (dados.total === 1 ? ' pessoa' : ' pessoas');
+  $('chamar').disabled = dados.total === 0;
+  $('chamadoBox').innerHTML = dados.chamado
+    ? '<div class="senha-grande">' + esc(dados.chamado.senha) + '</div>' +
+      '<div class="quem">' + esc(dados.chamado.nome) + '</div>' +
+      '<span class="badge ' + dados.chamado.prioridade + '">' + ROTULO[dados.chamado.prioridade] + '</span>'
+    : '<div class="vazio-chamado">Ninguém foi chamado ainda.</div>';
+  desenharLista(dados.fila);
+  desenharEstrutura(dados.fila);
+}
+
+function desenharLista(fila) {
+  const ul = $('lista');
+  ul.innerHTML = '';
+  if (fila.length === 0) {
+    ul.innerHTML = '<div class="vazio">' + ic('inbox') + '<span>A fila está vazia.</span></div>';
+    return;
+  }
+  fila.forEach((p, i) => {
+    const li = document.createElement('li');
+    li.className = 'p-' + p.prioridade + (i === 0 ? ' proximo' : '');
+    li.innerHTML =
+      '<span class="ordem">' + (i + 1) + '</span>' +
+      '<span class="senha">' + esc(p.senha) + '</span>' +
+      '<span class="nome">' + esc(p.nome) + '</span>' +
+      '<span class="badge ' + p.prioridade + '">' + ROTULO[p.prioridade] + '</span>' +
+      '<span class="hora">' + ic('clock') + esc(p.chegada) + '</span>' +
+      '<button class="icone" data-acao="cancelar" title="Saiu da fila">' + ic('x') + '</button>';
+    li.querySelector('[data-acao=cancelar]').addEventListener('click', () =>
+      executar(chamar(API + '/' + p.id, { method: 'DELETE' }), 'Pessoa removida da fila.'));
+    ul.appendChild(li);
+  });
+}
+
+function desenharEstrutura(fila) {
+  const box = $('estrutura');
+  box.innerHTML = '';
+  if (fila.length === 0) {
+    box.innerHTML = '<div class="nulo">inicio = null &nbsp;|&nbsp; fim = null (fila vazia)</div>';
+    return;
+  }
+  fila.forEach((p, i) => {
+    const primeiro = i === 0;
+    const ultimo = i === fila.length - 1;
+    let tag = '';
+    if (primeiro && ultimo) { tag = '<span class="tag both">INÍCIO = FIM</span>'; }
+    else if (primeiro) { tag = '<span class="tag head">INÍCIO (próximo)</span>'; }
+    else if (ultimo) { tag = '<span class="tag tail">FIM</span>'; }
+
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML =
+      '<div class="no-wrap">' + tag +
+        '<div class="no ' + p.prioridade + '">' +
+          '<div class="valor"><small>' + esc(p.senha) + '</small>' + esc(p.nome) + '</div>' +
+          '<div class="ptr">próx</div>' +
+        '</div>' +
+      '</div>' +
+      '<span class="seta">' + ic('arrow') + '</span>';
+    box.appendChild(item);
+  });
+  const nulo = document.createElement('div');
+  nulo.className = 'nulo';
+  nulo.textContent = 'null';
+  box.lastChild.appendChild(nulo);
+}
+
+$('form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const deu = await executar(
+    chamar(API, { method: 'POST', body: JSON.stringify({ nome: $('nome').value, prioridade: $('prioridade').value }) }),
+    'Pessoa adicionada à fila.');
+  if (deu) { $('nome').value = ''; $('prioridade').value = 'NORMAL'; $('nome').focus(); }
+});
+
+$('chamar').addEventListener('click', () =>
+  executar(chamar(API + '/chamar', { method: 'POST' }), 'Próximo chamado.'));
+
+executar(chamar(API));
+</script>
+</body>
+</html>
