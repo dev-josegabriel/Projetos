@@ -1,0 +1,24 @@
+[submodule "Java/metarun-api"]
+	path = Java/metarun-api
+	url = https://github.com/dev-josegabriel/metarun-api.git
+[submodule "Java/calcadosbgAPI"]
+	path = Java/calcadosbgAPI
+	url = https://github.com/dev-josegabriel/calcadosbgAPI.git
+[submodule "Java/bibliotecaAPI"]
+	path = Java/bibliotecaAPI
+	url = https://github.com/dev-josegabriel/bibliotecaAPI.git
+[submodule "Java/Calculadora_Java"]
+	path = Java/Calculadora_Java
+	url = https://github.com/dev-josegabriel/Calculadora_Java.git
+[submodule "Java/To_Do_List"]
+	path = Java/To_Do_List
+	url = https://github.com/dev-josegabriel/To_Do_List.git
+[submodule "Web/metarun-consultancy"]
+	path = Web/metarun-consultancy
+	url = https://github.com/dev-josegabriel/metarun-consultancy.git
+[submodule "Web/MeuPortfolio"]
+	path = Web/MeuPortfolio
+	url = https://github.com/dev-josegabriel/MeuPortfolio.git
+[submodule "Python/fila_prioritaria"]
+	path = Python/fila_prioritaria
+	url = https://github.com/dev-josegabriel/fila_prioritaria.git
