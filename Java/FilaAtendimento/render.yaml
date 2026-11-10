@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: fila-atendimento
+    runtime: docker
+    plan: free
+    healthCheckPath: /

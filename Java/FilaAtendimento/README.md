@@ -91,3 +91,14 @@ A fila é montada pelo `FilaService`, que guarda as pessoas em uma lista e a ord
 | POST | `/api/fila` | Entra na fila (`nome`, `prioridade`: NORMAL, PRIORITARIO ou EMERGENCIA) |
 | POST | `/api/fila/chamar` | Chama o próximo |
 | DELETE | `/api/fila/{id}` | Tira da fila quem desistiu |
+
+## Publicar na internet (Render)
+
+O projeto já tem `Dockerfile` e `render.yaml`. Passo a passo:
+
+1. Suba o código no GitHub (esta pasta precisa estar na **raiz** de um repositório, ou use o campo *Root Directory* apontando para `Java/FilaAtendimento`).
+2. No [Render](https://render.com), clique em **New +** → **Web Service** e conecte o repositório.
+3. Em *Language*, escolha **Docker**. Em *Instance Type*, **Free**. Clique em **Deploy**.
+4. Quando terminar (uns 3 a 5 minutos), o Render mostra o link público `https://fila-atendimento-xxxx.onrender.com`.
+
+No plano grátis o serviço "dorme" depois de um tempo parado; o primeiro acesso demora uns 30 segundos.
