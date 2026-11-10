@@ -1,18 +1,30 @@
-# Portfólio de Projetos
+# Projetos
 
-Projetos organizados por linguagem. Cada pasta é um link para o repositório original.
+Meus projetos organizados por linguagem. Foco em **Java e Spring Boot** (back-end), com projetos em Web e Python.
 
 ## Java
-- metarun-api
-- calcadosbgAPI
-- bibliotecaAPI
-- Calculadora_Java
+
+| Projeto | Descrição |
+|---|---|
+| [metarun-api](Java/metarun-api) | API REST de uma plataforma de consultoria de corrida, em produção (JWT, PostgreSQL, IA, pagamentos). Repositório privado. |
+| [calcadosbgAPI](Java/calcadosbgAPI) | Back-end de uma loja de calçados (pedidos, login, pagamentos). Repositório privado. |
+| [bibliotecaAPI](Java/bibliotecaAPI) | API REST de gestão de biblioteca (usuários, livros, empréstimos) com Spring Boot e PostgreSQL. |
+| [Calculadora_Java](Java/Calculadora_Java) | Calculadora simples em Java, usando POO. |
 
 ## Web (HTML/CSS/JS)
-- metarun-consultancy
-- MeuPortfolio
+
+| Projeto | Descrição |
+|---|---|
+| [metarun-consultancy](Web/metarun-consultancy) | Front-end da plataforma MetaRun, em produção. Repositório privado. |
+| [MeuPortfolio](Web/MeuPortfolio) | Site pessoal de portfólio. |
 
 ## Python
-- fila_prioritaria
 
-> Para clonar tudo de uma vez: `git clone --recurse-submodules <url-deste-repo>`
+| Projeto | Descrição |
+|---|---|
+| [fila_prioritaria](Python/fila_prioritaria) | Implementação de fila de prioridade (estrutura de dados). |
+
+## Observações
+
+- Os projetos marcados como **privados** aparecem como link para o repositório original e só abrem para quem tem acesso.
+- Os demais estão com o código dentro deste repositório.
