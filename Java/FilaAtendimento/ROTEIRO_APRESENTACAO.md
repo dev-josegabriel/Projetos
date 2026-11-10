@@ -21,9 +21,9 @@ Tempo: uns 5 minutos. Fala do jeito que você fala, é só pra ter o caminho.
 
 ## 4. Demonstração ao vivo (2 min)
 1. Rodar: `mvn spring-boot:run` e abrir http://localhost:8080
-2. Mostrar a fila inicial: Maria e João chegaram primeiro, mas Carlos (emergência) e Helena (prioritária) vêm na frente.
-3. Adicionar uma pessoa **Normal**: vai pro fim.
-4. Adicionar uma **Emergência**: passa na frente de todos, menos de outra emergência anterior.
+2. O site começa vazio. Cadastrar na hora: Maria (Normal), João (Normal), Helena (Prioritário) e Carlos (Emergência), nessa ordem.
+3. Mostrar que Maria e João chegaram primeiro, mas Carlos e Helena vêm na frente na fila.
+4. Adicionar mais uma **Emergência**: passa na frente de todos, menos de outra emergência anterior.
 5. Clicar em **Chamar próximo**: aparece a senha em destaque e a pessoa vai pros "Últimos chamados".
 6. Tentar o mesmo nome duas vezes: aparece o erro "Essa pessoa já está na fila."
 7. Cancelar alguém pelo X.

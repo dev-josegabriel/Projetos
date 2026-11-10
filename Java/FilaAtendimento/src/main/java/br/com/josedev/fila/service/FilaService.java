@@ -30,14 +30,6 @@ public class FilaService {
     private int atendidos = 0;
     private Atendimento chamado = null;
 
-    public FilaService() {
-        // Dados de exemplo, na ordem de chegada. Repare que a fila mostra por prioridade.
-        chegar("Maria Souza", Prioridade.NORMAL);
-        chegar("João Pereira", Prioridade.NORMAL);
-        chegar("Helena Barros", Prioridade.PRIORITARIO);
-        chegar("Carlos Lima", Prioridade.EMERGENCIA);
-    }
-
     public synchronized FilaResponse listar() {
         return resposta();
     }
