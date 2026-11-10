@@ -24,6 +24,12 @@ Meus projetos organizados por linguagem. Foco em **Java e Spring Boot** (back-en
 |---|---|
 | [fila_prioritaria](Python/fila_prioritaria) | Implementação de fila de prioridade (estrutura de dados). |
 
+## C#
+
+| Projeto | Descrição |
+|---|---|
+| [Calculadora](CSharp/Calculadora) | Calculadora de console com as quatro operações e tratamento de divisão por zero (.NET 8). |
+
 ## Observações
 
 - Os projetos marcados como **privados** aparecem como link para o repositório original e só abrem para quem tem acesso.
