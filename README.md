@@ -7,7 +7,6 @@ Projetos organizados por linguagem. Cada pasta é um link para o repositório or
 - calcadosbgAPI
 - bibliotecaAPI
 - Calculadora_Java
-- To_Do_List
 
 ## Web (HTML/CSS/JS)
 - metarun-consultancy
