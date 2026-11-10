@@ -2,7 +2,7 @@
 
 Sistema de triagem para a recepção de uma clínica: **emergências** são chamadas antes dos **prioritários** (idosos, gestantes, PCD), e estes antes dos **normais**. Quem tem a mesma prioridade é chamado por ordem de chegada.
 
-API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As pessoas ficam guardadas em uma lista na memória do servidor e a fila é mostrada sempre na ordem certa de chamada.
+API REST em **Java + Spring Boot** com um site de 4 páginas em HTML/CSS/JS (Painel, Fila de espera, Histórico e Regras). As pessoas ficam guardadas em uma lista na memória do servidor e a fila é mostrada sempre na ordem certa de chamada.
 
 ## Problema que resolve
 
@@ -39,15 +39,17 @@ Spring Web e Validation. Sem banco de dados: os dados ficam na própria estrutur
 
 ### 3) Estrutura de pacotes
 
-`estrutura` (fila prioritária), `model`, `dto`, `service`, `controller`, `exception`.
+`model`, `dto`, `service`, `controller`, `exception`. O site fica em `resources/static` (`index.html`, `fila.html`, `historico.html`, `regras.html`, mais `css/` e `js/`).
 
 ### 4) Banco
 
-Não há. A fila é a "base de dados" (se o servidor reiniciar, volta ao estado inicial).
+Não há. Os dados ficam em memória (se o servidor reiniciar, o sistema volta vazio).
 
 ### 5) Entidade
 
 **Atendimento:** id, senha, nome, prioridade, chegada.
+
+**Chamado:** id, senha, nome, prioridade, chegada, chamadoEm.
 
 ### 6) Relacionamentos
 
@@ -61,6 +63,15 @@ Nenhum. Cada pessoa é um item independente na lista.
 - A mesma pessoa não entra duas vezes (ignora maiúsculas).
 - Chamar o próximo com a fila vazia dá erro 409; cancelar quem não está na fila dá 404.
 
+## Páginas do site
+
+| Página | O que mostra |
+|---|---|
+| Painel (`index.html`) | Contadores, próximos da fila, gráfico por prioridade, últimos chamados e botão de chamar |
+| Fila de espera (`fila.html`) | Cadastro de chegada, fila completa e cancelamento |
+| Histórico (`historico.html`) | Tabela de quem já foi chamado e tempo de espera |
+| Regras (`regras.html`) | Como a prioridade funciona, exemplo e tecnologias |
+
 ## Regra de prioridade
 
 A fila é montada pelo `FilaService`, que guarda as pessoas em uma lista e a ordena com um `Comparator`:
@@ -69,7 +80,7 @@ A fila é montada pelo `FilaService`, que guarda as pessoas em uma lista e a ord
 2. No mesmo nível, quem chegou antes (menor id) é chamado antes.
 
 - **Entrar na fila:** a pessoa é adicionada e a fila já aparece na ordem certa.
-- **Chamar o próximo:** sai o primeiro da fila ordenada e vai para "Últimos chamados".
+- **Chamar o próximo:** sai o primeiro da fila ordenada e vai para o histórico, com o horário da chamada.
 - **Cancelar:** a pessoa é removida da lista.
 
 ## API

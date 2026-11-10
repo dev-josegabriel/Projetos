@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico | Fila de Atendimento</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="historico" data-titulo="Histórico" data-sub="Todas as pessoas que já foram chamadas, com o tempo de espera de cada uma.">
+<main>
+  <div class="stats">
+    <div class="stat atend"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></div><div><b id="cAtend">0</b><span>Já atendidos</span></div></div>
+    <div class="stat emerg"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div><b id="hEmerg">0</b><span>Emergências atendidas</span></div></div>
+    <div class="stat prio"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></div><div><b id="hPrio">0</b><span>Prioritários atendidos</span></div></div>
+    <div class="stat"><div class="bolha"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b id="hNormal">0</b><span>Normais atendidos</span></div></div>
+  </div>
+  <section class="card">
+    <h2><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pessoas já chamadas</h2>
+    <div class="tabela-rolagem"><table>
+      <thead><tr><th>Senha</th><th>Nome</th><th>Prioridade</th><th>Chegou às</th><th>Chamado às</th><th>Esperou</th></tr></thead>
+      <tbody id="corpo"></tbody>
+    </table></div>
+    <div id="semDados"></div>
+  </section>
+</main>
+<script src="js/app.js"></script>
+<script>
+iniciar(function (d) {
+  const conta = (n) => d.historico.filter((p) => p.prioridade === n).length;
+  $('hEmerg').textContent = conta('EMERGENCIA');
+  $('hPrio').textContent = conta('PRIORITARIO');
+  $('hNormal').textContent = conta('NORMAL');
+  $('corpo').innerHTML = d.historico.map(function (p) {
+    return '<tr><td class="mono">' + esc(p.senha) + '</td><td>' + esc(p.nome) + '</td>' +
+      '<td><span class="badge ' + p.prioridade + '">' + ROTULO[p.prioridade] + '</span></td>' +
+      '<td>' + esc(p.chegada) + '</td><td>' + esc(p.chamadoEm) + '</td><td>' + espera(p.chegada, p.chamadoEm) + '</td></tr>';
+  }).join('');
+  $('semDados').innerHTML = d.historico.length ? '' : '<div class="vazio">' + ic('inbox') + '<span>Ninguém foi chamado ainda.</span></div>';
+});
+</script>
+</body>
+</html>

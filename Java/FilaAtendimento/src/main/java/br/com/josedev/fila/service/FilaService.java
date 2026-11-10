@@ -4,6 +4,7 @@ import br.com.josedev.fila.dto.FilaResponse;
 import br.com.josedev.fila.exception.NaoEncontradoException;
 import br.com.josedev.fila.exception.RegraNegocioException;
 import br.com.josedev.fila.model.Atendimento;
+import br.com.josedev.fila.model.Chamado;
 import br.com.josedev.fila.model.Prioridade;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class FilaService {
             Comparator.comparingInt((Atendimento a) -> a.prioridade().getNivel()).thenComparingInt(Atendimento::id);
 
     private final List<Atendimento> fila = new ArrayList<>();
-    private final List<Atendimento> historico = new ArrayList<>();
+    private final List<Chamado> historico = new ArrayList<>();
     private int proximoId = 1;
     private int atendidos = 0;
     private Atendimento chamado = null;
@@ -59,7 +60,8 @@ public class FilaService {
         Atendimento proximo = ordenada().get(0);
         fila.remove(proximo);
         chamado = proximo;
-        historico.add(0, proximo);
+        historico.add(0, new Chamado(proximo.id(), proximo.senha(), proximo.nome(), proximo.prioridade(), proximo.chegada(),
+                LocalTime.now().format(HORA)));
         atendidos++;
         return resposta();
     }
@@ -83,6 +85,6 @@ public class FilaService {
         long emergencias = lista.stream().filter(a -> a.prioridade() == Prioridade.EMERGENCIA).count();
         long prioritarios = lista.stream().filter(a -> a.prioridade() == Prioridade.PRIORITARIO).count();
         long normais = lista.stream().filter(a -> a.prioridade() == Prioridade.NORMAL).count();
-        return new FilaResponse(lista, historico.stream().limit(5).toList(), lista.size(), (int) emergencias, (int) prioritarios, (int) normais, atendidos, chamado);
+        return new FilaResponse(lista, new ArrayList<>(historico), lista.size(), (int) emergencias, (int) prioritarios, (int) normais, atendidos, chamado);
     }
 }

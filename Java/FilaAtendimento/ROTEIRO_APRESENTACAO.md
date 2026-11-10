@@ -14,19 +14,20 @@ Tempo: uns 5 minutos. Fala do jeito que você fala, é só pra ter o caminho.
 - Cada pessoa recebe uma senha: a primeira letra mostra o nível (E004, P003, N001).
 
 ## 3. Como o sistema está montado (1 min)
-- Front-end: HTML, CSS e JavaScript (tela única).
+- Front-end: site com 4 páginas (Painel, Fila de espera, Histórico e Regras), em HTML, CSS e JavaScript.
 - Back-end: Java 17 + Spring Boot, API REST.
 - Camadas: Controller (recebe o pedido) → Service (regras e a lista de pessoas).
 - Os dados ficam em memória, sem banco.
 
 ## 4. Demonstração ao vivo (2 min)
 1. Rodar: `mvn spring-boot:run` e abrir http://localhost:8080
-2. O site começa vazio. Cadastrar na hora: Maria (Normal), João (Normal), Helena (Prioritário) e Carlos (Emergência), nessa ordem.
-3. Mostrar que Maria e João chegaram primeiro, mas Carlos e Helena vêm na frente na fila.
-4. Adicionar mais uma **Emergência**: passa na frente de todos, menos de outra emergência anterior.
-5. Clicar em **Chamar próximo**: aparece a senha em destaque e a pessoa vai pros "Últimos chamados".
-6. Tentar o mesmo nome duas vezes: aparece o erro "Essa pessoa já está na fila."
-7. Cancelar alguém pelo X.
+2. O site começa vazio. Mostrar o menu: Painel, Fila de espera, Histórico e Regras.
+3. Na **Fila de espera**, cadastrar na hora: Maria (Normal), João (Normal), Helena (Prioritário) e Carlos (Emergência), nessa ordem.
+4. Mostrar que Maria e João chegaram primeiro, mas Carlos e Helena vêm na frente.
+5. Cadastrar outra **Emergência**: passa na frente de todos, menos de outra emergência anterior.
+6. Clicar em **Chamar próximo**: aparece a senha em destaque.
+7. Tentar o mesmo nome duas vezes: aparece o erro "Essa pessoa já está na fila."
+8. Ir ao **Painel** (contadores e gráfico), ao **Histórico** (tempo de espera) e às **Regras**.
 
 ## 5. Possíveis perguntas
 - **Por que não usou fila comum?** Porque ela chama só por ordem de chegada, e aqui a urgência importa.

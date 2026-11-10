@@ -1,13 +1,14 @@
 package br.com.josedev.fila.dto;
 
 import br.com.josedev.fila.model.Atendimento;
+import br.com.josedev.fila.model.Chamado;
 
 import java.util.List;
 
-/** Fila na ordem de chamada, os últimos chamados e os contadores já calculados. */
+/** Fila na ordem de chamada, todos os já chamados (o mais recente primeiro) e os contadores já calculados. */
 public record FilaResponse(
         List<Atendimento> fila,
-        List<Atendimento> historico,
+        List<Chamado> historico,
         int total,
         int emergencias,
         int prioritarios,

@@ -116,5 +116,6 @@ class FilaServiceTest {
         FilaResponse r = s.chamarProximo();
         assertEquals("Helena Barros", r.historico().get(0).nome());
         assertEquals("Carlos Lima", r.historico().get(1).nome());
+        assertNotNull(r.historico().get(0).chamadoEm());
     }
 }

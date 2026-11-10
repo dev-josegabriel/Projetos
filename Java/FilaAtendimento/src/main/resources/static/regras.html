@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regras | Fila de Atendimento</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="regras" data-titulo="Regras" data-sub="Como a prioridade funciona e como o sistema é organizado.">
+<main>
+  <div class="layout">
+  <div class="col">
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>Como a prioridade funciona</h2>
+      <p class="texto">Em uma clínica, quem chega primeiro nem sempre deve ser atendido primeiro. A fila considera a urgência de cada pessoa.</p>
+      <div class="regra n1"><div class="bolha">1</div><div><b>Emergência</b><span>Passa na frente de todos. A senha começa com E.</span></div></div>
+      <div class="regra n2"><div class="bolha">2</div><div><b>Prioritário</b><span>Idosos, gestantes e pessoas com deficiência. Vêm depois das emergências. A senha começa com P.</span></div></div>
+      <div class="regra n3"><div class="bolha">3</div><div><b>Normal</b><span>Atendidos por último. A senha começa com N.</span></div></div>
+      <p class="nota">Quem tem a mesma prioridade é chamado por ordem de chegada.</p>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Exemplo</h2>
+      <div class="tabela-rolagem"><table>
+        <thead><tr><th>Chegou</th><th>Pessoa</th><th>Prioridade</th><th>Será chamado</th></tr></thead>
+        <tbody>
+          <tr><td>1º</td><td>Maria</td><td><span class="badge NORMAL">Normal</span></td><td><b>3º</b></td></tr>
+          <tr><td>2º</td><td>João</td><td><span class="badge NORMAL">Normal</span></td><td><b>4º</b></td></tr>
+          <tr><td>3º</td><td>Helena</td><td><span class="badge PRIORITARIO">Prioritário</span></td><td><b>2º</b></td></tr>
+          <tr><td>4º</td><td>Carlos</td><td><span class="badge EMERGENCIA">Emergência</span></td><td><b>1º</b></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Como o sistema funciona</h2>
+      <div class="fluxo coluna">
+        <div class="passo"><b>1. Tela</b><span>A recepção clica e faz um pedido.</span></div>
+        <div class="passo"><b>2. Controller</b><span>Porta de entrada: recebe o pedido.</span></div>
+        <div class="passo"><b>3. Service</b><span>Confere as regras e guarda as pessoas na lista.</span></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>Regras de validação</h2>
+      <p class="texto">· O nome é obrigatório (até 60 letras)<br>· A mesma pessoa não entra duas vezes<br>· A prioridade precisa ser escolhida<br>· Não chama ninguém se a fila está vazia</p>
+    </section>
+    <section class="card">
+      <h2><svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Tecnologias</h2>
+      <div class="tags"><span class="tag">Java 17</span><span class="tag">Spring Boot</span><span class="tag">API REST</span><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
+      <p class="nota" style="margin-top:12px">Os dados ficam só na memória do servidor. Se ele reiniciar, a fila volta ao começo.</p>
+    </section>
+  </div>
+  </div>
+</main>
+<script src="js/app.js"></script>
+<script>iniciar();</script>
+</body>
+</html>
