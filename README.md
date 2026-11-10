@@ -10,6 +10,7 @@ Meus projetos organizados por linguagem. Foco em **Java e Spring Boot** (back-en
 | [calcadosbgAPI](Java/calcadosbgAPI) | Back-end de uma loja de calçados (pedidos, login, pagamentos). Repositório privado. |
 | [bibliotecaAPI](Java/bibliotecaAPI) | API REST de gestão de biblioteca (usuários, livros, empréstimos) com Spring Boot e PostgreSQL. |
 | [Calculadora_Java](Java/Calculadora_Java) | Calculadora simples em Java, usando POO. |
+| [ListaTarefas](Java/ListaTarefas) | Lista de tarefas com API REST (Spring Boot) e front-end web, usando uma lista encadeada implementada à mão. |
 
 ## Web (HTML/CSS/JS)
 

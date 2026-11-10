@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Tarefas — Lista Encadeada</title>
+<style>
+  :root {
+    --bg: #f3f8f4; --card: #ffffff; --borda: #cfe3d4; --texto: #14301f; --suave: #5b7566;
+    --azul: #1f9d55; --verde: #0b6b3a; --vermelho: #d64545; --amarelo: #b7791f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--texto); font-family: "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
+  h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  .sub { color: var(--suave); margin: 0 0 22px; }
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 12px; font-size: 1.05rem; color: var(--azul); }
+
+  form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input[type=text], input[type=number], select {
+    background: #ffffff; color: var(--texto); border: 1px solid var(--borda); border-radius: 8px;
+    padding: 10px 12px; font-size: .95rem;
+  }
+  input[type=text] { flex: 1 1 260px; }
+  input[type=number] { width: 90px; }
+  button {
+    background: var(--azul); color: #ffffff; border: 0; border-radius: 8px; padding: 10px 16px;
+    font-weight: 600; font-size: .95rem; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.sec { background: transparent; color: var(--texto); border: 1px solid var(--borda); }
+  button.mini { padding: 5px 9px; font-size: .85rem; }
+  button.perigo { background: var(--vermelho); color: #ffffff; }
+
+  .contadores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { background: #ffffff; border: 1px solid var(--borda); border-radius: 999px; padding: 4px 12px; font-size: .85rem; color: var(--suave); }
+  .chip b { color: var(--texto); }
+
+  ul#lista { list-style: none; margin: 0; padding: 0; }
+  ul#lista li {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--borda);
+    border-radius: 8px; margin-bottom: 8px; background: #ffffff;
+  }
+  ul#lista li.feita .titulo { text-decoration: line-through; color: var(--suave); }
+  .titulo { flex: 1; word-break: break-word; }
+  .pos { color: var(--suave); font-size: .8rem; min-width: 28px; }
+  input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--verde); }
+  .vazio { color: var(--suave); text-align: center; padding: 18px; }
+
+  .acoes { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+  /* desenho da lista encadeada */
+  .estrutura { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; row-gap: 22px; padding: 6px 2px 2px; }
+  .item { display: flex; align-items: center; }
+  .no-wrap { position: relative; padding-top: 20px; }
+  .tag { position: absolute; top: 0; left: 0; font-size: .7rem; font-weight: 700; letter-spacing: .04em; }
+  .tag.head { color: var(--verde); } .tag.tail { color: var(--amarelo); } .tag.both { color: var(--verde); }
+  .no { display: flex; border: 2px solid var(--azul); border-radius: 8px; overflow: hidden; background: #ffffff; }
+  .no.feita { border-color: var(--verde); }
+  .no .valor { padding: 8px 12px; max-width: 170px; font-size: .85rem; }
+  .no .valor small { display: block; color: var(--suave); font-size: .7rem; }
+  .no .ptr { background: var(--azul); color: #ffffff; padding: 0 10px; display: flex; align-items: center; font-weight: 700; font-size: .75rem; }
+  .no.feita .ptr { background: var(--verde); }
+  .seta { color: var(--azul); font-size: 1.4rem; padding: 0 6px; }
+  .nulo { border: 2px dashed var(--borda); border-radius: 8px; padding: 8px 12px; color: var(--suave); font-weight: 700; font-size: .85rem; margin-top: 20px; }
+  .complex { font-size: .88rem; color: var(--suave); line-height: 1.7; margin: 0; padding-left: 18px; }
+  .complex b { color: var(--texto); }
+
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--vermelho); color: #ffffff;
+    padding: 10px 18px; border-radius: 8px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .25s;
+    max-width: 90vw; z-index: 10;
+  }
+  #toast.ok { background: var(--verde); color: #ffffff; }
+  #toast.mostrar { opacity: 1; }
+</style>
+</head>
+<body>
+<main>
+  <h1>📝 Lista de Tarefas</h1>
+  <p class="sub">Feita com uma <b>lista encadeada</b> implementada à mão — embaixo você vê a estrutura de dados funcionando.</p>
+
+  <section class="card">
+    <h2>Nova tarefa</h2>
+    <form id="form">
+      <input type="text" id="titulo" placeholder="O que precisa ser feito?" maxlength="100" autocomplete="off" required>
+      <select id="onde">
+        <option value="fim">Adicionar no fim</option>
+        <option value="inicio">Adicionar no início</option>
+        <option value="posicao">Numa posição…</option>
+      </select>
+      <input type="number" id="posicao" min="0" value="1" title="Posição (começa em 0)" style="display:none">
+      <button type="submit">Adicionar</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Minhas tarefas</h2>
+    <div class="contadores">
+      <span class="chip">Total: <b id="cTotal">0</b></span>
+      <span class="chip">Pendentes: <b id="cPend">0</b></span>
+      <span class="chip">Concluídas: <b id="cConc">0</b></span>
+    </div>
+    <ul id="lista"></ul>
+    <div class="acoes"><button class="sec mini" id="limpar">🧹 Limpar concluídas</button></div>
+  </section>
+
+  <section class="card">
+    <h2>Como a lista está guardada na memória</h2>
+    <div class="estrutura" id="estrutura"></div>
+  </section>
+
+  <section class="card">
+    <h2>Custo de cada operação</h2>
+    <ul class="complex">
+      <li>Adicionar no <b>início</b> ou no <b>fim</b>: <b>O(1)</b> — a lista guarda o início e o fim, então não precisa andar.</li>
+      <li>Adicionar numa <b>posição</b>, <b>buscar</b> ou <b>remover</b>: <b>O(n)</b> — precisa andar nó por nó até achar.</li>
+      <li><b>Limpar concluídas</b>: <b>O(n)</b> — uma única passada pela lista, religando os nós.</li>
+    </ul>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const API = '/api/tarefas';
+const $ = (id) => document.getElementById(id);
+
+function esc(texto) {
+  const d = document.createElement('div');
+  d.textContent = texto;
+  return d.innerHTML;
+}
+
+function aviso(msg, ok) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'mostrar' + (ok ? ' ok' : '');
+  clearTimeout(aviso.timer);
+  aviso.timer = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+async function chamar(url, opcoes) {
+  const resp = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opcoes));
+  let dados = {};
+  try { dados = await resp.json(); } catch (e) { /* resposta sem corpo */ }
+  if (!resp.ok) { throw new Error(dados.erro || 'Algo deu errado.'); }
+  return dados;
+}
+
+async function executar(promessa, mensagemOk) {
+  try {
+    const dados = await promessa;
+    desenhar(dados);
+    if (mensagemOk) { aviso(mensagemOk, true); }
+    return true;
+  } catch (e) {
+    aviso(e.message);
+    return false;
+  }
+}
+
+function desenhar(dados) {
+  $('cTotal').textContent = dados.total;
+  $('cPend').textContent = dados.pendentes;
+  $('cConc').textContent = dados.concluidas;
+  desenharLista(dados.tarefas);
+  desenharEstrutura(dados.tarefas);
+}
+
+function desenharLista(tarefas) {
+  const ul = $('lista');
+  ul.innerHTML = '';
+  if (tarefas.length === 0) {
+    ul.innerHTML = '<div class="vazio">Nenhuma tarefa. Adicione a primeira acima!</div>';
+    return;
+  }
+  tarefas.forEach((t, i) => {
+    const li = document.createElement('li');
+    if (t.concluida) { li.className = 'feita'; }
+    li.innerHTML =
+      '<span class="pos">#' + i + '</span>' +
+      '<input type="checkbox" ' + (t.concluida ? 'checked' : '') + ' title="Concluir / reabrir">' +
+      '<span class="titulo">' + esc(t.titulo) + '</span>' +
+      '<button class="sec mini" data-acao="editar" title="Editar">✏️</button>' +
+      '<button class="perigo mini" data-acao="remover" title="Remover">✕</button>';
+
+    li.querySelector('input').addEventListener('change', () =>
+      executar(chamar(API + '/' + t.id + '/concluir', { method: 'PATCH' })));
+
+    li.querySelector('[data-acao=editar]').addEventListener('click', () => {
+      const novo = prompt('Novo título da tarefa:', t.titulo);
+      if (novo === null) { return; }
+      executar(chamar(API + '/' + t.id, { method: 'PUT', body: JSON.stringify({ titulo: novo }) }), 'Tarefa editada.');
+    });
+
+    li.querySelector('[data-acao=remover]').addEventListener('click', () =>
+      executar(chamar(API + '/' + t.id, { method: 'DELETE' }), 'Tarefa removida.'));
+
+    ul.appendChild(li);
+  });
+}
+
+function desenharEstrutura(tarefas) {
+  const box = $('estrutura');
+  box.innerHTML = '';
+  if (tarefas.length === 0) {
+    box.innerHTML = '<div class="nulo">inicio = null &nbsp;|&nbsp; fim = null (lista vazia)</div>';
+    return;
+  }
+  tarefas.forEach((t, i) => {
+    const primeiro = i === 0;
+    const ultimo = i === tarefas.length - 1;
+    let tag = '';
+    if (primeiro && ultimo) { tag = '<span class="tag both">INÍCIO = FIM</span>'; }
+    else if (primeiro) { tag = '<span class="tag head">INÍCIO</span>'; }
+    else if (ultimo) { tag = '<span class="tag tail">FIM</span>'; }
+
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML =
+      '<div class="no-wrap">' + tag +
+        '<div class="no' + (t.concluida ? ' feita' : '') + '">' +
+          '<div class="valor"><small>id ' + t.id + '</small>' + esc(t.titulo) + '</div>' +
+          '<div class="ptr">próx</div>' +
+        '</div>' +
+      '</div>' +
+      '<span class="seta">→</span>';
+    box.appendChild(item);
+  });
+  const nulo = document.createElement('div');
+  nulo.className = 'nulo';
+  nulo.textContent = 'null';
+  box.appendChild(nulo);
+}
+
+// ---------- formulário ----------
+$('onde').addEventListener('change', () => {
+  $('posicao').style.display = $('onde').value === 'posicao' ? 'inline-block' : 'none';
+});
+
+$('form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const onde = $('onde').value;
+  let posicao = null;
+  if (onde === 'inicio') { posicao = 0; }
+  if (onde === 'posicao') { posicao = parseInt($('posicao').value, 10); }
+
+  const deu = await executar(
+    chamar(API, { method: 'POST', body: JSON.stringify({ titulo: $('titulo').value, posicao: posicao }) }),
+    'Tarefa adicionada.');
+  if (deu) { $('titulo').value = ''; $('titulo').focus(); }
+});
+
+$('limpar').addEventListener('click', () =>
+  executar(chamar(API + '/concluidas', { method: 'DELETE' }), 'Tarefas concluídas removidas.'));
+
+// ---------- início ----------
+executar(chamar(API));
+</script>
+</body>
+</html>
