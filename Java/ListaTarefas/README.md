@@ -2,6 +2,10 @@
 
 API REST em **Java + Spring Boot** com front-end em HTML/CSS/JS. As tarefas ficam guardadas numa **lista simplesmente encadeada implementada à mão** (sem `LinkedList` do Java), e a tela desenha a estrutura de dados funcionando.
 
+## Problema que resolve
+
+Quem estuda perde o controle do que fazer primeiro, porque as tarefas mudam de ordem o tempo todo: surge algo urgente (vai para o início), algo precisa se encaixar no meio e o que termina precisa sair da lista. O sistema organiza isso com uma lista encadeada, onde cada tarefa aponta para a próxima e mudar a ordem é só trocar as ligações.
+
 ## Como rodar
 
 Precisa de **Java 17+** e **Maven** (ou IntelliJ).
